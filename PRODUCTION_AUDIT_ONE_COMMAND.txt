@@ -1,0 +1,101 @@
+EPEJABAT — CURRENT PRODUCTION AUDIT: BLOCKED PENDING CURRENT SNAPSHOT
+
+Pengesahan: arahan Production Audit + Auto-Correction + Simplified Upgrade belum diselesaikan terhadap source production terkini.
+Snapshot source terakhir: 2026-10-10 23:56:14 UTC, versi database 1.0.0. Upload pakej v1.0.3 atau bootstrap bukan bukti ia telah dipasang.
+
+FINDINGS PADA SNAPSHOT TERAKHIR (BUKAN KEADAAN PRODUCTION TERKINI)
+1. Allowlist lama tidak membenarkan UpgradeWeb.php, LiveUpgradeManager.php, InstallationKey.php dan bin/platform.php diganti. Mekanisme legacy menolak pakej yang memperkenalkan peningkatan upgrader tersebut.
+2. /upgrade lama meminta SHA-256 manual. Aliran Installation Key dan SHA-256 automatik berada dalam kod release pembangunan; pemasangan sebenar belum dibuktikan.
+3. Pakej v1.0.3 dipinkan kepada baseline 1.0.0 dan hash snapshot terdahulu. Ia tidak boleh dilabel FINAL untuk production yang mungkin telah berubah.
+4. Keperluan bootstrap semasa belum dapat ditentukan. Jangan jalankan bootstrap lama atau menukar trust key untuk memaksa pemasangan.
+
+SATU PEMERIKSAAN COPY-PASTE
+Buka cPanel Terminal dan tampal keseluruhan blok di bawah sekali sahaja. PHP CLI mesti 8.2+ dan mempunyai ZipArchive. Jika PHP CLI lalai tidak sesuai, skrip berhenti tanpa menjalankan pemasangan.
+Skrip membaca source upgrade/UI yang dipilih, versi database, migration ledger dan sejarah upgrade dalam transaksi read-only. Ia tidak menjalankan bootstrap aplikasi, session, migration atau ujian yang mengubah rekod.
+Hanya ZIP snapshot baharu ditulis di luar project root /home/epejabat/ dengan izin 0600. Config, database dump, password, Installation Key/hash dan data staf tidak disertakan. Source yang dipilih tidak boleh mengandungi credentials hard-coded; jika pernah ditambah secara manual, jangan upload tanpa redaction.
+
+php <<'EPEJABAT_READ_ONLY_AUDIT'
+// Diagnostic collector only: no installer, migration or application writes.
+declare(strict_types=1);
+if (PHP_SAPI !== 'cli' || PHP_VERSION_ID < 80200) exit("BLOCKED: PHP CLI 8.2+ diperlukan.\n");
+ini_set('display_errors','0'); ini_set('log_errors','0'); umask(0077);
+$root = getenv('EPEJABAT_AUDIT_ROOT') ?: '/home/epejabat/pkdkb.epejabat.net';
+$outDir = dirname($root);
+function safePath(string $root,string $rel): bool {
+    $current=$root;
+    foreach (explode('/',$rel) as $part) { $current.='/'.$part; if(is_link($current)) return false; }
+    return true;
+}
+try {
+    if (!class_exists('ZipArchive') || !is_dir($root) || is_link($root) || realpath($root)!==$root || !is_writable($outDir)) throw new RuntimeException();
+    $files=['index.php','bootstrap.php','.htaccess','app/Core/Ui.php','app/Core/Web.php','app/Core/UpgradeWeb.php','app/Core/LiveUpgradeManager.php','app/Core/UpgradePackage.php','app/Core/InstallationKey.php','app/Core/Versions.php','app/Core/Upgrade.php','app/Core/Migrations.php','app/Core/Backup.php','app/Core/AccessProtection.php','app/Core/Authorization.php','app/Core/Auth.php','bin/platform.php','assets/app.css','assets/app.js','app/Modules/Training/Qr.php','database/release.json'];
+    $report=['captured_at'=>gmdate('c'),'php'=>PHP_VERSION,'production_acceptance'=>'NOT VERIFIED','files'=>[],'database'=>['status'=>'BLOCKED'],'trust'=>['status'=>'BLOCKED']];
+    foreach(['pdo_mysql','zip','openssl','mbstring','session','fileinfo'] as $ext) $report['extensions'][$ext]=extension_loaded($ext);
+    $bytes=[];
+    foreach ($files as $rel) {
+        if (!safePath($root,$rel)) { $report['files'][$rel]=['status'=>'SYMLINK_BLOCKED']; continue; }
+        $path=$root.'/'.$rel;
+        if(!file_exists($path)) { $report['files'][$rel]=['status'=>'ABSENT']; continue; }
+        if(!is_file($path)||!is_readable($path)||filesize($path)>5000000) { $report['files'][$rel]=['status'=>'BLOCKED']; continue; }
+        $data=file_get_contents($path);
+        $bytes['source/'.$rel]=$data;
+        $report['files'][$rel]=['status'=>'CAPTURED','sha256'=>hash('sha256',$data),'writable'=>is_writable($path)];
+    }
+    // Include only allowlists and PUBLIC publisher fingerprints, never configuration files.
+    if(safePath($root,'config/upgrade-trust.php') && is_file($root.'/config/upgrade-trust.php')) {
+        ob_start(); try { $trust=require $root.'/config/upgrade-trust.php'; } finally { ob_end_clean(); }
+        if(is_array($trust)) {
+            $report['trust']=['status'=>'CAPTURED','sha256'=>hash_file('sha256',$root.'/config/upgrade-trust.php'),'shared_core_allowlist'=>$trust['shared_core_allowlist']??[],'modules'=>$trust['modules']??[],'publisher_fingerprints'=>[]];
+            foreach(($trust['publishers']??[]) as $id=>$key) if(is_string($key)) $report['trust']['publisher_fingerprints'][$id]=hash('sha256',$key);
+        }
+    }
+    foreach(['storage','storage/upgrades','storage/backups','storage/install.lock','storage/upgrade.lock','storage/maintenance.lock'] as $rel) $report['paths'][$rel]=['symlink_safe'=>safePath($root,$rel),'exists'=>file_exists($root.'/'.$rel),'writable'=>safePath($root,$rel)&&is_writable($root.'/'.$rel)];
+    // Read-only transaction; do not bootstrap the application or start sessions.
+    try {
+        if(!safePath($root,'config/app.php')) throw new RuntimeException();
+        ob_start(); try { $config=require $root.'/config/app.php'; } finally { ob_end_clean(); }
+        $db=$config['db']??[];
+        if(!preg_match('/\A[a-zA-Z0-9_.:\-]+\z/',$db['host']??'') || !preg_match('/\A[a-zA-Z0-9_\-]+\z/',$db['name']??'') || !is_int($db['port']??null)) throw new RuntimeException();
+        $pdo=new PDO('mysql:host='.$db['host'].';port='.$db['port'].';dbname='.$db['name'].';charset=utf8mb4',$db['user'],$db['password'],[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC,PDO::ATTR_TIMEOUT=>5]);
+        $pdo->exec('SET TRANSACTION READ ONLY'); $pdo->beginTransaction();
+        $report['database']=['status'=>'CAPTURED','server_version'=>$pdo->getAttribute(PDO::ATTR_SERVER_VERSION),'versions'=>$pdo->query("SELECT setting_key,setting_value FROM system_settings WHERE setting_key IN ('app_version','core_version','module_version.training','required_php','installed_at','last_upgrade_at','last_upgrade_status','installation_status')")->fetchAll(),'installation_key_configured'=>(bool)$pdo->query("SELECT COUNT(*) FROM system_settings WHERE setting_key='upgrade_installation_key'")->fetchColumn()];
+        foreach(['migrations'=>"SELECT version,checksum,status,applied_at FROM database_migrations ORDER BY version",'upgrade_history'=>"SELECT run_id,module_key,previous_version,target_version,status,completed_at FROM upgrade_history ORDER BY completed_at DESC LIMIT 20"] as $label=>$sql) {
+            try {$report['database'][$label]=$pdo->query($sql)->fetchAll();} catch(Throwable $e) {$report['database'][$label]=['status'=>'BLOCKED'];}
+        }
+        $pdo->rollBack(); unset($pdo,$config,$db);
+    } catch(Throwable $e) { if(isset($pdo)&&$pdo->inTransaction()) $pdo->rollBack(); $report['database']=['status'=>'BLOCKED']; }
+    $target=$outDir.'/epejabat_CURRENT_UPGRADE_AUDIT_'.gmdate('Ymd_His').'_'.bin2hex(random_bytes(4)).'.zip';
+    $zip=new ZipArchive();
+    if($zip->open($target,ZipArchive::CREATE|ZipArchive::EXCL)!==true) throw new RuntimeException();
+    foreach($bytes as $name=>$data) if(!$zip->addFromString($name,$data)) throw new RuntimeException();
+    $zip->addFromString('production-evidence.json',json_encode($report,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_THROW_ON_ERROR));
+    if(!$zip->close() || !chmod($target,0600)) throw new RuntimeException();
+    echo "Snapshot: ".$target."\nDatabase evidence: ".$report['database']['status']."\nTiada source/rekod database diubah. Upload ZIP ini sahaja.\n";
+} catch(Throwable $e) { if(isset($target)&&is_file($target)) unlink($target); fwrite(STDERR,"BLOCKED: snapshot tidak dapat disediakan; tiada butiran rahsia dipaparkan.\n"); exit(1); }
+EPEJABAT_READ_ONLY_AUDIT
+
+SELEPAS SIAP
+Download ZIP bernama epejabat_CURRENT_UPGRADE_AUDIT_*.zip daripada /home/epejabat/ melalui File Manager, kemudian upload satu ZIP itu dalam perbualan ini. Jangan extract ZIP ini ke production: ia snapshot audit, bukan release.
+Jika output menyatakan Database evidence: BLOCKED, upload ZIP tersebut juga; jangan kongsi credentials atau salin error database.
+Padam ZIP diagnostik daripada hosting selepas ia diterima. Fail aplikasi dan database tidak perlu dipadam atau dipulihkan kerana collector tidak mengubahnya.
+
+UJIAN COLLECTOR
+{
+  "collector_tests": {
+    "php_lint": "PASS",
+    "source_unchanged": "PASS",
+    "credentials_excluded": "PASS",
+    "symlink_rejection": "PASS",
+    "absent_file_reporting": "PASS",
+    "hash_matches_captured_bytes": "PASS",
+    "private_zip_permissions": "PASS",
+    "missing_root_fail_closed": "PASS",
+    "database_error_redacted": "PASS"
+  },
+  "production_database_capture": "NOT TESTED",
+  "latest_production_compatibility": "BLOCKED",
+  "release_package": "BLOCKED"
+}
+
+STATUS RELEASE: BLOCKED — source production terkini belum dipinkan.
+Targeted correction, signature, versi sasaran dan prosedur deployment maksimum empat langkah akan ditentukan daripada baseline semasa. Tiada deployment dilakukan dan tiada pakej lama dikeluarkan semula sebagai FINAL.

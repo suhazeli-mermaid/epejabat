@@ -1,0 +1,6 @@
+<?php
+declare(strict_types=1);
+if(PHP_SAPI!=='cli')exit(1);
+define('APP_ROOT',dirname(__DIR__));
+spl_autoload_register(static function($c){foreach(['EPejabat\\Core\\'=>'Core/','EPejabat\\Modules\\Training\\'=>'Modules/Training/'] as $prefix=>$dir)if(str_starts_with($c,$prefix)){$n=substr($c,strlen($prefix));if(preg_match('/\A[A-Za-z]+\z/',$n)&&is_file($f=APP_ROOT.'/app/'.$dir.$n.'.php'))require $f;}});
+try{if(is_file(APP_ROOT.'/storage/upgrades/maintenance.lock')||is_file(APP_ROOT.'/storage/upgrades/blocked.lock'))throw new RuntimeException('Upgrade recovery/maintenance aktif');$config=require APP_ROOT.'/config/app.php';$p=\EPejabat\Core\Database::connect($config['db']);$mode=$argv[1]??'plan';if($mode==='apply-backup-confirmed')throw new RuntimeException('Use bin/platform.php migrate with verified backup');elseif($mode==='queue'){\EPejabat\Modules\Training\ExtendedMigrations::require($p);$n=\EPejabat\Modules\Training\Events::dispatch($p);$r=\EPejabat\Core\Notifications::process($p);echo json_encode(['events'=>$n,...$r])."\n";exit($r['blocked']?2:0);}elseif($mode!=='plan')throw new RuntimeException('Invalid command');echo json_encode(\EPejabat\Modules\Training\ExtendedMigrations::plan($p),JSON_PRETTY_PRINT)."\n";}catch(Throwable $e){fwrite(STDERR,'Module 1 unavailable; reference '.\EPejabat\Core\Support::log($e)."\n");exit(1);}

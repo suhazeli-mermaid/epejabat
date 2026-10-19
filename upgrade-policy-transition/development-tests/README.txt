@@ -1,0 +1,1 @@
+Development regression source. Requires the existing isolated test fixture and PHP/MariaDB runtime from the development workspace. Not a production tool. Never run these tests on hosting; setup destroys its own synthetic test database. Runtime, database credentials, fixture data and keys intentionally excluded.

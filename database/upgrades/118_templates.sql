@@ -1,0 +1,1 @@
+CREATE TABLE notification_templates (template_key VARCHAR(64) PRIMARY KEY, subject VARCHAR(190) NOT NULL, body TEXT NOT NULL, is_active TINYINT NOT NULL DEFAULT 1) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

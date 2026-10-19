@@ -1,0 +1,80 @@
+{
+    "tests": [
+        {
+            "test": "Matching baseline and payload",
+            "status": "PASS"
+        },
+        {
+            "test": "Baseline mismatch blocks",
+            "status": "PASS"
+        },
+        {
+            "test": "New-file conflict blocks",
+            "status": "PASS"
+        },
+        {
+            "test": "Payload tamper blocks",
+            "status": "PASS"
+        },
+        {
+            "test": "Symlink blocks",
+            "status": "PASS"
+        },
+        {
+            "test": "Traversal absolute and empty segment rejected",
+            "status": "PASS"
+        },
+        {
+            "test": "After mode verifies installed payload",
+            "status": "PASS"
+        },
+        {
+            "test": "Repeat installation blocked by before mode",
+            "status": "PASS"
+        },
+        {
+            "test": "Anonymous actor rejected",
+            "status": "PASS"
+        },
+        {
+            "test": "Incorrect Installation Key rejected",
+            "status": "PASS"
+        },
+        {
+            "test": "Leading-zero key accepted by existing engine",
+            "status": "PASS"
+        },
+        {
+            "test": "CSRF rejected by existing guard",
+            "status": "PASS"
+        },
+        {
+            "test": "Unsigned always blocks automatic install",
+            "status": "PASS"
+        },
+        {
+            "test": "Missing Backup::create explicitly blocks",
+            "status": "PASS"
+        },
+        {
+            "test": "No invented smoke PASS",
+            "status": "PASS"
+        },
+        {
+            "test": "No key hash exposed",
+            "status": "PASS"
+        },
+        {
+            "test": "Checker never applies migrations",
+            "status": "PASS"
+        },
+        {
+            "test": "Existing verifier rejects unsigned ZIP",
+            "status": "PASS"
+        }
+    ],
+    "previous_45_tests": "NOT RERUN \u2014 prior RC1 evidence unchanged",
+    "browser": "NOT TESTED",
+    "production": "NOT TESTED",
+    "php": "8.2.32"
+}

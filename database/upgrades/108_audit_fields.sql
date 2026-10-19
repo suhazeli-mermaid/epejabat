@@ -1,0 +1,1 @@
+ALTER TABLE audit_logs ADD module_code VARCHAR(64) NOT NULL DEFAULT 'core', ADD reason VARCHAR(500) NULL, ADD before_json LONGTEXT NULL, ADD after_json LONGTEXT NULL, ADD integrity_hash CHAR(64) NULL;

@@ -1,0 +1,267 @@
+{
+    "checked_at": "2026-10-15T02:54:18+00:00",
+    "mode": "before",
+    "status": "BLOCKED",
+    "automatic_install": "BLOCKED_UNSIGNED",
+    "versions": [],
+    "history": [],
+    "checks": [
+        {
+            "check": "Installed file",
+            "item": "old.txt",
+            "status": "BLOCKED"
+        },
+        {
+            "check": "Staged integrity",
+            "item": "old.txt",
+            "status": "PASS"
+        },
+        {
+            "check": "Staged integrity",
+            "item": "new.txt",
+            "status": "PASS"
+        },
+        {
+            "check": "New file absence",
+            "item": "new.txt",
+            "status": "BLOCKED"
+        },
+        {
+            "check": "Version app_version",
+            "status": "BLOCKED",
+            "detail": "Not recorded"
+        },
+        {
+            "check": "Version core_version",
+            "status": "BLOCKED",
+            "detail": "Not recorded"
+        },
+        {
+            "check": "Version module_version.training",
+            "status": "BLOCKED",
+            "detail": "Not recorded"
+        },
+        {
+            "check": "Version module_version.eforms",
+            "status": "BLOCKED",
+            "detail": "Not recorded"
+        },
+        {
+            "check": "Version policy",
+            "status": "WARNING",
+            "detail": "Versions are observed, not invented. Exact pinned source and migration checks determine local compatibility."
+        },
+        {
+            "check": "PHP",
+            "status": "PASS",
+            "detail": "8.2.32"
+        },
+        {
+            "check": "Extension pdo_mysql",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Extension openssl",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Extension mbstring",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Extension fileinfo",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Extension zip",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Required path storage\/installed.lock",
+            "status": "BLOCKED",
+            "detail": ""
+        },
+        {
+            "check": "Required path storage\/upgrades",
+            "status": "BLOCKED",
+            "detail": ""
+        },
+        {
+            "check": "Required path storage\/backups",
+            "status": "BLOCKED",
+            "detail": ""
+        },
+        {
+            "check": "Maintenance lock",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Write permission old.txt",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Write permission new.txt",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Migration 200_eforms_schema.sql",
+            "status": "BLOCKED",
+            "detail": "Must be applied with exact checksum"
+        },
+        {
+            "check": "Migration 201_eforms_seed.php",
+            "status": "BLOCKED",
+            "detail": "Must be applied with exact checksum"
+        },
+        {
+            "check": "Migration 210_package_pdf_support.sql",
+            "status": "BLOCKED",
+            "detail": "Must be applied with exact checksum"
+        },
+        {
+            "check": "Migration 211_form_packages.sql",
+            "status": "BLOCKED",
+            "detail": "Must be applied with exact checksum"
+        },
+        {
+            "check": "Migration 212_package_version.php",
+            "status": "BLOCKED",
+            "detail": "Must be applied with exact checksum"
+        },
+        {
+            "check": "Migration 220_public_programs.sql",
+            "status": "PASS",
+            "detail": "Must be pending and untracked"
+        },
+        {
+            "check": "Migration 221_public_program_seed.php",
+            "status": "PASS",
+            "detail": "Must be pending and untracked"
+        },
+        {
+            "check": "Table public_programs",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Table public_guardians",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Table public_participants",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Table public_program_attempts",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Database version",
+            "status": "PASS",
+            "detail": "10.11.18-MariaDB-0+deb12u1"
+        },
+        {
+            "check": "Installation Key configured",
+            "status": "PASS",
+            "detail": ""
+        },
+        {
+            "check": "Installation Key verified for session",
+            "status": "PASS",
+            "detail": "Verification never substitutes publisher signature."
+        },
+        {
+            "check": "Existing backup create interface",
+            "status": "BLOCKED",
+            "detail": "Existing e-Forms migration handler calls Backup::create. No fallback or replacement is installed."
+        },
+        {
+            "check": "Backup restore completeness",
+            "status": "WARNING",
+            "detail": "No backup created and no restore executed. Writable storage does not prove recovery."
+        },
+        {
+            "check": "Private storage HTTP denial",
+            "status": "WARNING",
+            "detail": "Must verify on hosting; no internal HTTP request is made by this checker."
+        },
+        {
+            "check": "Existing publisher trust",
+            "status": "PASS",
+            "detail": "Key material is not displayed."
+        },
+        {
+            "check": "Upgrade allowlist old.txt",
+            "status": "BLOCKED",
+            "detail": ""
+        },
+        {
+            "check": "Upgrade allowlist new.txt",
+            "status": "BLOCKED",
+            "detail": ""
+        },
+        {
+            "check": "Trusted signed release",
+            "status": "BLOCKED",
+            "detail": "This RC1 artifact is unsigned. Existing UpgradePackage::verify requires a trusted manifest signature. Automatic installation is disabled."
+        },
+        {
+            "check": "Installer operation",
+            "status": "BLOCKED",
+            "detail": "No file copy, backup creation, migration or install-history mutation is executed by this checker. Use only a separately approved supported deployment path."
+        }
+    ],
+    "smoke_tests": [
+        {
+            "test": "Admin interactive login",
+            "status": "NOT TESTED"
+        },
+        {
+            "test": "Program Manager browser",
+            "status": "NOT TESTED"
+        },
+        {
+            "test": "Public and guardian registration",
+            "status": "NOT TESTED"
+        },
+        {
+            "test": "Add child mobile",
+            "status": "NOT TESTED"
+        },
+        {
+            "test": "MyKid duplicate behaviour",
+            "status": "NOT TESTED"
+        },
+        {
+            "test": "Concurrent quota",
+            "status": "NOT TESTED"
+        },
+        {
+            "test": "Waiting list promotion",
+            "status": "NOT TESTED"
+        },
+        {
+            "test": "Approved email delivery",
+            "status": "NOT TESTED"
+        },
+        {
+            "test": "Admin dashboard",
+            "status": "NOT TESTED"
+        },
+        {
+            "test": "Chrome and Safari\/iPhone",
+            "status": "NOT TESTED"
+        }
+    ]
+}

@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "form": "Lampiran_A",
+      "status": "PASS",
+      "pages": 2,
+      "check": "Overlay generation and original page dimensions; visual fidelity NOT TESTED in this run"
+    },
+    {
+      "form": "Off",
+      "status": "PASS",
+      "pages": 1,
+      "check": "Overlay generation and original page dimensions; visual fidelity NOT TESTED in this run"
+    },
+    {
+      "form": "Cuti",
+      "status": "PASS",
+      "pages": 1,
+      "check": "Overlay generation and original page dimensions; visual fidelity NOT TESTED in this run"
+    },
+    {
+      "form": "Synthetic",
+      "status": "PASS",
+      "pages": 1,
+      "check": "Overlay generation and original page dimensions; visual fidelity NOT TESTED in this run"
+    }
+  ],
+  "pass": 4,
+  "fail": 0
+}

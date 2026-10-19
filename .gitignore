@@ -1,0 +1,13 @@
+/config/app.php
+/config/smtp.php
+/config/core.key
+/storage/*
+!/storage/.htaccess
+!/storage/access-probe.html
+/backup/*
+!/backup/.htaccess
+!/backup/access-probe.html
+/log/*
+!/log/.htaccess
+!/log/access-probe.html
+/error_log

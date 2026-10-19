@@ -1,0 +1,115 @@
+{
+  "kind": "Targeted JavaScript model and PDF integration; NOT browser visual testing",
+  "results": [
+    {
+      "test": "Section condition inherited before first save",
+      "status": "PASS"
+    },
+    {
+      "test": "Page break clears inherited condition",
+      "status": "PASS"
+    },
+    {
+      "test": "Hidden section child excluded from preview payload",
+      "status": "PASS"
+    },
+    {
+      "test": "Visible required section child checked",
+      "status": "PASS"
+    },
+    {
+      "test": "Hidden required child does not block preview",
+      "status": "PASS"
+    },
+    {
+      "test": "Chained hidden values cannot reveal dependent field",
+      "status": "PASS"
+    },
+    {
+      "test": "Conflicting section and child conditions rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Forward condition reference rejected before save",
+      "status": "PASS"
+    },
+    {
+      "test": "Required empty repeat table rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Repeat table limit checked",
+      "status": "PASS"
+    },
+    {
+      "test": "Required multiselect checked",
+      "status": "PASS"
+    },
+    {
+      "test": "Unlisted multiselect option rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Unchecked signature rejected when required",
+      "status": "PASS"
+    },
+    {
+      "test": "Telephone format preview validation",
+      "status": "PASS"
+    },
+    {
+      "test": "Down arrow moves entire section after next section",
+      "status": "PASS"
+    },
+    {
+      "test": "Last section down is safe no-op",
+      "status": "PASS"
+    },
+    {
+      "test": "Negative drag index rejected without mutation",
+      "status": "PASS"
+    },
+    {
+      "test": "Out of range drag source rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Scalar reorder preserves values",
+      "status": "PASS"
+    },
+    {
+      "test": "Reorder cannot make dependency forward reference",
+      "status": "PASS"
+    },
+    {
+      "test": "Changing saved section condition updates inherited children",
+      "status": "PASS"
+    },
+    {
+      "test": "Removing section condition clears inherited children",
+      "status": "PASS"
+    },
+    {
+      "test": "Searchable input does not accept value outside options",
+      "status": "PASS"
+    },
+    {
+      "test": "PDF overlay omits hidden section data and unapproved certification",
+      "status": "PASS"
+    },
+    {
+      "test": "PDF overlay includes visible section and authorised certification",
+      "status": "PASS"
+    },
+    {
+      "test": "Lampiran A revised overlay preserves both page dimensions",
+      "status": "PASS"
+    }
+  ],
+  "pass": 26,
+  "fail": 0,
+  "source_hashes": {
+    "eforms-engine.mjs": "e5ec5a650f57e6bd759dbd9f19d21635fea1057cabc85df6c2c1bf9cfdc4363d",
+    "eforms-visual.mjs": "bb0185358e396adcc4afeae6c4bf576560a6ac327e235adb67e228f33304bd9f"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "tests": [
+    {
+      "test": "Existing Admin login",
+      "status": "PASS"
+    },
+    {
+      "test": "Admin ZIP interface renders",
+      "status": "PASS"
+    },
+    {
+      "test": "ZIP CSRF rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Hash mismatch HTTP rejection",
+      "status": "PASS"
+    },
+    {
+      "test": "Multipart ZIP validates and shows confirmation",
+      "status": "PASS"
+    },
+    {
+      "test": "Confirmation opens existing studio",
+      "status": "PASS"
+    },
+    {
+      "test": "Staff import permission denied",
+      "status": "PASS"
+    },
+    {
+      "test": "Staged PDF actor access denied",
+      "status": "PASS"
+    },
+    {
+      "test": "Scoped staff library renders",
+      "status": "PASS"
+    }
+  ],
+  "pass": 9,
+  "fail": 0,
+  "actual_browser": "NOT TESTED"
+}

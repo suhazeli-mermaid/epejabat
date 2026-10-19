@@ -1,0 +1,37 @@
+POST-INSTALL HOSTING SMOKE — report PASS / FAIL / BLOCKED / NOT TESTED
+
+[ ] PHP 8.2 runtime and required extensions verified on this hosting.
+[ ] HTTPS/canonical Host/session Secure HttpOnly SameSite cookies.
+[ ] Internal folder probes deny HTTP; bootstrap and sensitive files denied.
+[ ] Empty-database install completed, all migration ledger rows applied, checksums match.
+[ ] /install returns 403 and config/setup.php is removed after completion.
+[ ] Super Admin login/logout, current profile and initial organisation hierarchy.
+[ ] Staff preload/import preview, claim ownership link, single-use activation.
+[ ] SMTP configuration shown honestly; test delivery ONLY to a consenting test account.
+[ ] Pending registration review; no internal access before email ownership activation.
+[ ] PKD/clinic/unit test admins cannot view/edit another PKD or other module.
+[ ] Programme creation/edit/approval, public landing/link/QR, quotas/waitlist/invitation.
+[ ] QR scan camera permission, manual fallback, explicit attendance confirmation.
+[ ] Attendance correction review and immutable original timestamp/audit.
+[ ] CPD rule needs approved regulator policy; calculation/approval/no double counting.
+[ ] Official letter preview/PDF and one/two protected signatories.
+[ ] Evaluation, multiple-role certificates, locking/revocation/verification/download.
+[ ] Staff history and organisation-scoped CSV/PDF/XLSX reporting.
+[ ] Protected document upload/download rejects cross-scope/MIME/hash tampering.
+[ ] Notifications queued/SENT means SMTP acceptance, not proof of inbox delivery.
+[ ] /upgrade requires Super Admin, CSRF, password, signed package, matching baseline.
+[ ] Browser widths 320/375/390/430/768/1024/1440; no horizontal page overflow.
+[ ] Real Safari/Firefox/Edge/iOS/Android camera and keyboard/accessibility checks.
+[ ] CLI environment/version/status/integrity/smoke/http-deny diagnostics pass.
+[ ] Database backup restore tested separately and rollback instructions understood.
+
+Automated CLI read-only checks:
+php bin/platform.php environment
+php bin/platform.php database
+php bin/platform.php version
+php bin/platform.php migration-status
+php bin/platform.php integrity
+php bin/platform.php smoke
+php bin/platform.php http-deny
+php bin/platform.php diagnostics
+Do not execute migrations or email queues merely to run smoke tests on real users.

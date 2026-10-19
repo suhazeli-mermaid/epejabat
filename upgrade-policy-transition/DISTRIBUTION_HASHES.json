@@ -1,0 +1,21 @@
+{
+  ".htaccess": "836a5f3743d9718dc6bb96b75ba073900fe52e7397a02ff050242fe1c5517e96",
+  "INSTALLATION_GUIDE.md": "23a5592587a8351e41cfbdf6f05122fa811a98c7401b2d022919e5c6b079f6d4",
+  "READINESS_REPORT.md": "8262a0a5e30688f0b1b4fb72d2dffd923a7ccab04eed5d5e32cbebccfc3940a4",
+  "TEST_RESULTS.json": "df395ff49b65d40dae43278ead5b7ea299ca67f73ff2c671816555b531a0a9c1",
+  "Transition.php": "523491faee5d02a0aff0d433d07caedb0fdfaba448df15a0bf94b1fcfdcbd643",
+  "activate.php": "611a66746dfeb3d59becaf282c5b3e205ad51913d655fba4b4f040fcf4d2b448",
+  "checker.php": "17818870de2f6b8c5f4465c60d24eb5b671ab5fac146dd8f36024048d484ea50",
+  "development-tests/README.txt": "ee5772dde81bc57847f9d5ba39cda036b834413f1ef7c699f96695cb0069e815",
+  "development-tests/cases.php": "22de994aaa512ac7aafadaac239c2191eee5860fb4fd8680d68cce9b5800c526",
+  "development-tests/http_tests.py": "39273bfcb34d2c29fe6dcf12735e7f650e1676f2c49d36c6e24da5402b69a871",
+  "development-tests/run.py": "426fc08583bf267c7ab493e3ccb2edd67be3ca618559bd8afb6b943e4438b927",
+  "development-tests/setup.py": "de2740552b37878c6607918c77860ff51c5b2f67b7bc7eec18c5c58d37d5ba0c",
+  "payload/.htaccess": "fa28d421a28ed9b6f4b997d5119c2b8adbacff6e2dd119a179b71230f9664934",
+  "payload/app/Core/LiveUpgradeManager.php": "c39d127181412ffeb62941790e2d949f850f00c095f75aa2c6b1448862503679",
+  "payload/app/Core/ProductionBaseline.php": "42429e49c47b78483e9f08410e3d3420e1420cd6cc45fd96ce3368424148311d",
+  "payload/app/Core/UpgradePackage.php": "b1b9870a3bdeda6118aa49a50e85156c4aa2f27036b54da0ba6144f32d2ad6ab",
+  "payload/app/Core/UpgradePolicy.php": "d4a9a7c7ffca6cafeb7c858f52e2822756231dc85a921a35a51499403cfdbbce",
+  "payload/app/Core/UpgradeWeb.php": "ae27134322f567b01ce9807718fe847f791cbca63db54a11ed4dd352a9d3f616",
+  "transition-manifest.json": "977ed3aea737b3007ae64768889a7aad1c901b84955950e38e33acfe90690858"
+}

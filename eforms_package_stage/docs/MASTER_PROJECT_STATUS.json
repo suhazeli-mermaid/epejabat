@@ -1,0 +1,20 @@
+{
+  "phase": "2C",
+  "development": "PARTIAL",
+  "target_module": "eforms 1.3.0 RC1",
+  "production": "UNCHANGED / NOT VERIFIED",
+  "core_training_registration": "preserved; no production operation",
+  "completed": [
+    "package validation",
+    "confirmed draft import",
+    "scoped library",
+    "selected visual editor and original PDF overlay",
+    "four reusable examples"
+  ],
+  "remaining": [
+    "actual browser/mobile acceptance",
+    "production baseline preflight",
+    "production deployment and controlled smoke test"
+  ],
+  "baseline_locked": false
+}

@@ -1,0 +1,30 @@
+epejabat FRESH v1.0.0 — TEST & READINESS REPORT
+Local tested runtime: PHP 8.3.6, 10.11.14-MariaDB-0ubuntu0.24.04.1, Apache 2.4.58; Chromium Playwright.
+Architecture: one root; no epejabat_private. Application/Core/Training initial versions: 1.0.0.
+Production deployment/deletion/migration: NOT PERFORMED / NOT AUTHORIZED.
+
+PASS — 331 executed functional/security/CLI/browser assertions.
+PASS — 73 PHP files linted (actual PHP 8.3.6).
+PASS — Empty database installer: temporary token, actual HTTP protection check before database credentials, connection/empty DB validation, Foundation migration, Super Admin, Core + T1–T6 additive migrations, configurable initial Malaysia/state/PKD hierarchy, version record and irreversible installer lock.
+PASS — Shared Core: claim/email ownership through local SMTP sink, token expiry/single use/concurrency, approval/correction/rejection, password reset/change/email change, profile and employment history, CSV/XLSX preview/import, duplicate and formula rejection, scope/role delegation, cross-PKD/module isolation, last Super Admin invariants, protected uploads/downloads/versioning, notifications/retries, audit HMAC/tamper detection and secret redaction.
+PASS — T1: programme revisions/approval/ownership/eligibility/open/targeted/invitation/admin assignment/multiple roles/quota/waitlist/concurrency/walk-in/public links/QR and protected programme documents.
+PASS — T2: dynamic and personal bound QR, check-in/checkpoint/check-out, authorized manual events, completion policy, corrections/review/immutable timestamp and audit.
+PASS — T3: verified role-based CPD rules, explicit policy references, calculated/approved/manual override/history/evidence changes and double counting safeguards.
+PASS — T4/T5: official PDF preview and letters, one/two protected signatories, multiple participation roles, evaluation prerequisites, certificate generation/locking/verification/revocation, scoped protected download and signature permissions.
+PASS — T6: participant portfolio/historical snapshots, scoped statistics and CSV/PDF/XLSX export.
+PASS — Upgrade: signed publisher + ZIP SHA256, strict paths/allowlist/archive limits, existing baseline/new-file absence/symlink conflicts, entire declared migration ledger, actual recent SQL backup hash checks, file backup, version history, one-time browser authorization, stronger Core approval, successful Module/Core updates, replay denial, destructive SQL policy, actual partial DDL failure, persisted RECOVERY_REQUIRED, maintenance gating and file rollback hash conflicts. Database rollback is deliberately NOT automatic.
+PASS — CLI: environment/database/version/plan/status/integrity/smoke/HTTP deny/diagnostics; diagnostic and integrity commands still work with offline database.
+PASS — Real Apache HTTP denial for app/config/database/storage/bin/backup/log/docs and bootstrap, with canary .html files. A negative test deliberately exposes a local fixture folder and correctly reports FAIL; protections are restored. The Apache harness uses a test-only UID adapter because this container maps only UID0; it is not packaged.
+PASS — Chromium responsive forms/navigation/tables and populated programme workstation at widths 320,375,390,430,768,1024,1440; no page overflow; drawer/Escape, QR token handoff and rejection of foreign-origin QR; no JS runtime exceptions.
+
+NOT TESTED — Actual PHP 8.2 executable (available test runtime is 8.3.6); application minimum and extension gate is 8.2. Exact hosting/runtime acceptance must be verified there.
+NOT TESTED — Production cPanel/LiteSpeed/MySQL runtime, actual HTTPS/session Secure-cookie delivery, DNS/permissions/AllowOverride, production browser smoke.
+NOT TESTED — Physical mobile camera decoding, iOS/Safari/Firefox/Edge and hardware-specific behavior; local QR attendance engine and browser manual fallback/token validation were tested.
+NOT TESTED — Real SMTP TLS/inbox delivery. Only an isolated local sink received test emails. An unconfigured SMTP queue remains BLOCKED, never falsely SENT.
+NOT TESTED — Formal WCAG 2.2 AA certification, penetration testing, sustained-load/large-tenancy performance and backup restore disaster recovery.
+
+Implementation: Foundation/Shared Core/Module1 T1–T6 IMPLEMENTED and exercised locally. Fresh installer, browser upgrader, version tracking, CLI and mobile UI IMPLEMENTED.
+Readiness: READY FOR STAGING REVIEW; production installation and verification remain BLOCKED pending authorized deployment and hosting smoke. Do not label DEPLOYED & VERIFIED.
+Known limits: approved CPD policies/master data/templates/signatories/SMTP must be configured by authorized admins. Portal records are not regulator credit certification. No old production data is imported. New module namespaces and Core paths require an explicitly reviewed trusted publisher/allowlist policy; arbitrary ZIPs cannot modify authentication, configuration, keys or the updater. Signed publisher public key only is packaged. Backup checksum/SQL marker does not prove restore success. File rollback retains locks until database recovery is reviewed. Reporting UI pagination enhances the authorized result set returned by the server, not unrestricted cross-tenant data.
+
+Detailed executed assertions and source hashes: docs/TEST_RESULTS.json. Lint: docs/PHP_LINT.json. Backup/recovery: docs/ROLLBACK.txt. Hosting/browser checks: docs/SMOKE_CHECKLIST.txt. Upgrade format: docs/UPGRADE_FORMAT.txt.

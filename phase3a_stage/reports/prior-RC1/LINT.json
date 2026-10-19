@@ -1,0 +1,27 @@
+[
+  {
+    "file": "phase3a/payload/public-program.php",
+    "status": "PASS",
+    "output": "No syntax errors detected in phase3a/payload/public-program.php\n"
+  },
+  {
+    "file": "phase3a/payload/app/Modules/PublicPrograms/Service.php",
+    "status": "PASS",
+    "output": "No syntax errors detected in phase3a/payload/app/Modules/PublicPrograms/Service.php\n"
+  },
+  {
+    "file": "phase3a/payload/app/Modules/PublicPrograms/Web.php",
+    "status": "PASS",
+    "output": "No syntax errors detected in phase3a/payload/app/Modules/PublicPrograms/Web.php\n"
+  },
+  {
+    "file": "phase3a/payload/database/modules/eforms/221_public_program_seed.php",
+    "status": "PASS",
+    "output": "No syntax errors detected in phase3a/payload/database/modules/eforms/221_public_program_seed.php\n"
+  },
+  {
+    "file": "phase3a/phase3a-preflight.php",
+    "status": "PASS",
+    "output": "No syntax errors detected in phase3a/phase3a-preflight.php\n"
+  }
+]

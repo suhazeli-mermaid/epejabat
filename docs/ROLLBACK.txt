@@ -1,0 +1,16 @@
+epejabat FRESH v1.0.0 — BACKUP & RECOVERY
+
+No production deployment or deletion has been performed.
+Before an approved fresh deployment: export the entire current database, back up the entire existing application including configuration/key/private documents, verify archive checksums, and test restoring to a separate database. Preserve these backups outside the public root. Do not mix the new fresh package with the old installation. Use an approved empty application directory and a new empty database.
+
+If fresh installation fails: keep the database, config/app.php, config/core.key, logs and migration ledger. Do not erase locks, recreate tables or rerun an incomplete migration. Diagnose with bin/platform.php diagnostics and migration-status. Recover the old production application by switching its document root/configuration back to its verified backup; do not point the old application at the new database. A failed fresh database can be examined offline before an explicitly authorized new attempt.
+
+Future upgrades: place a recent SQL or SQL.gz backup in protected storage/backups. The upgrade form accepts filename.sql:SHA256 and UTC ISO timestamp. It checks actual bytes, SHA256, size, age and a CREATE TABLE marker. These checks establish archive availability/integrity, NOT successful restoration. Restore-test the backup separately. Stop cron and external writers during maintenance.
+
+The upgrade engine automatically archives affected files and the signed manifest in storage/upgrades/<run-id>/files-backup.zip, verifies backup hashes, acquires locks, rechecks all baselines, and then applies pending migrations. On partial failure it keeps blocked.lock and maintenance.lock and records RECOVERY_REQUIRED. Do not delete the locks to retry.
+
+File-only rollback (SSH/account owner):
+  php bin/platform.php rollback <run-id>
+This refuses symlinks, unsafe paths, missing/wrong recovery locks, altered current hashes or corrupt backup bytes. It restores replaced files and removes only the new files from that verified run. It DOES NOT undo database DDL/data changes or version records. Locks remain active.
+
+Database recovery: stop all writers; preserve a copy of the failed database and migration ledger for investigation; restore the verified pre-upgrade database into a separate database; verify schema/data and encryption key compatibility; restore corresponding application files/configuration; test authentication, staff identity, RBAC, protected documents and all relevant module routes. Only after a reviewed recovery should configuration switch and lock removal be authorized. Do not blindly execute DROP statements or decrement migration versions.

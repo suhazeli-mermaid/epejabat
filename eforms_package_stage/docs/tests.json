@@ -1,0 +1,179 @@
+{
+    "tests": [
+        {
+            "test": "Lampiran_A archive validates",
+            "status": "PASS"
+        },
+        {
+            "test": "Lampiran_A staged package actor isolation",
+            "status": "PASS"
+        },
+        {
+            "test": "Lampiran_A import idempotent",
+            "status": "PASS"
+        },
+        {
+            "test": "Lampiran_A cannot publish without mapping review",
+            "status": "PASS"
+        },
+        {
+            "test": "Lampiran_A cross organisation approval denied",
+            "status": "PASS"
+        },
+        {
+            "test": "Lampiran_A imported submission approval and original PDF binding",
+            "status": "PASS"
+        },
+        {
+            "test": "Lampiran_A revision restore preserves submissions",
+            "status": "PASS"
+        },
+        {
+            "test": "Off archive validates",
+            "status": "PASS"
+        },
+        {
+            "test": "Off staged package actor isolation",
+            "status": "PASS"
+        },
+        {
+            "test": "Off import idempotent",
+            "status": "PASS"
+        },
+        {
+            "test": "Off cannot publish without mapping review",
+            "status": "PASS"
+        },
+        {
+            "test": "Off cross organisation approval denied",
+            "status": "PASS"
+        },
+        {
+            "test": "Off imported submission approval and original PDF binding",
+            "status": "PASS"
+        },
+        {
+            "test": "Off revision restore preserves submissions",
+            "status": "PASS"
+        },
+        {
+            "test": "Cuti archive validates",
+            "status": "PASS"
+        },
+        {
+            "test": "Cuti staged package actor isolation",
+            "status": "PASS"
+        },
+        {
+            "test": "Cuti import idempotent",
+            "status": "PASS"
+        },
+        {
+            "test": "Cuti cannot publish without mapping review",
+            "status": "PASS"
+        },
+        {
+            "test": "Cuti cross organisation approval denied",
+            "status": "PASS"
+        },
+        {
+            "test": "Cuti imported submission approval and original PDF binding",
+            "status": "PASS"
+        },
+        {
+            "test": "Cuti revision restore preserves submissions",
+            "status": "PASS"
+        },
+        {
+            "test": "Synthetic archive validates",
+            "status": "PASS"
+        },
+        {
+            "test": "Synthetic staged package actor isolation",
+            "status": "PASS"
+        },
+        {
+            "test": "Synthetic import idempotent",
+            "status": "PASS"
+        },
+        {
+            "test": "Synthetic cannot publish without mapping review",
+            "status": "PASS"
+        },
+        {
+            "test": "Synthetic cross organisation approval denied",
+            "status": "PASS"
+        },
+        {
+            "test": "Synthetic imported submission approval and original PDF binding",
+            "status": "PASS"
+        },
+        {
+            "test": "Synthetic revision restore preserves submissions",
+            "status": "PASS"
+        },
+        {
+            "test": "invalid-executable.zip rejected",
+            "status": "PASS"
+        },
+        {
+            "test": "invalid-hash.zip rejected",
+            "status": "PASS"
+        },
+        {
+            "test": "invalid-schema.zip rejected",
+            "status": "PASS"
+        },
+        {
+            "test": "invalid-symlink.zip rejected",
+            "status": "PASS"
+        },
+        {
+            "test": "invalid-traversal.zip rejected",
+            "status": "PASS"
+        },
+        {
+            "test": "Conflicting same ID revision blocked",
+            "status": "PASS"
+        },
+        {
+            "test": "Nonsequential revision blocked",
+            "status": "PASS"
+        },
+        {
+            "test": "Sequential revision permitted",
+            "status": "PASS"
+        },
+        {
+            "test": "Expired staging rejected",
+            "status": "PASS"
+        },
+        {
+            "test": "Staged file modification rejected",
+            "status": "PASS"
+        },
+        {
+            "test": "Non-admin import scope denied",
+            "status": "PASS"
+        },
+        {
+            "test": "Unpublished form denies new draft",
+            "status": "PASS"
+        },
+        {
+            "test": "Migration replay applies no duplicate ledger",
+            "status": "PASS"
+        },
+        {
+            "test": "No real email sent",
+            "status": "PASS"
+        }
+    ],
+    "pass": 42,
+    "fail": 0,
+    "php": "8.2.32",
+    "database": "10.11.18-MariaDB-0+deb12u1",
+    "browser_mobile": "NOT TESTED",
+    "production": "NOT TESTED",
+    "http_upload": "NOT TESTED"
+}

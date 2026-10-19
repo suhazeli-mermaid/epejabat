@@ -1,0 +1,8 @@
+<?php
+declare(strict_types=1);
+namespace EPejabat\Core;
+final class Versions {
+ public static function read(\PDO $p):array {return Database::query($p,"SELECT setting_key,setting_value FROM system_settings WHERE setting_key IN ('app_version','core_version','module_version.training','required_php','installed_at')")->fetchAll(\PDO::FETCH_KEY_PAIR);}
+ public static function set(\PDO $p,string $key,string $value):void {Database::query($p,'INSERT INTO system_settings(setting_key,setting_value) VALUES(?,?) ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',[$key,$value]);}
+ public static function record(\PDO $p,int $actor,string $module,string $target,string $run):void {if(!preg_match('/\A\d+\.\d+\.\d+\z/',$target))throw new \RuntimeException('Version tidak sah.');$before=Database::query($p,'SELECT setting_value FROM system_settings WHERE setting_key=?',['module_version.'.$module])->fetchColumn();Database::query($p,"INSERT INTO upgrade_history(run_id,module_key,previous_version,target_version,status,actor_id,completed_at) VALUES(?,?,?,?,'VERIFIED_LOCAL_INSTALL',?,UTC_TIMESTAMP()) ON DUPLICATE KEY UPDATE previous_version=VALUES(previous_version),target_version=VALUES(target_version),status=VALUES(status),actor_id=VALUES(actor_id),completed_at=UTC_TIMESTAMP()",[$run,$module,$before?:null,$target,$actor]);self::set($p,'module_version.'.$module,$target);self::set($p,'last_upgrade_at',gmdate('c'));self::set($p,'last_upgrade_status','VERIFIED_LOCAL_INSTALL');Audit::record($p,'version.upgraded',$actor,null,$run,'core',null,['version'=>$before],['version'=>$target,'module'=>$module]);}
+}

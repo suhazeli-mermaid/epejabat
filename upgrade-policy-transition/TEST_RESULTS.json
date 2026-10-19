@@ -1,0 +1,334 @@
+{
+  "status": "READY_FOR_CONTROLLED_HOSTING_ACTIVATION",
+  "production_deployed": false,
+  "production_activation": "NOT AUTHORIZED",
+  "baseline": "Authenticated production capture 2026-10-15T04:06:41Z, App/Core 1.2.0; exact five destination before-hashes rechecked at activation",
+  "runtime": {
+    "PHP": "8.2.32",
+    "database": "MariaDB 10.11.18",
+    "HTTP": "Apache 2.4.68 + actual PHP cURL protection probes"
+  },
+  "tests": [
+    {
+      "test": "PHP 8.2 lint upgrade-policy-transition/Transition.php",
+      "status": "PASS"
+    },
+    {
+      "test": "PHP 8.2 lint upgrade-policy-transition/activate.php",
+      "status": "PASS"
+    },
+    {
+      "test": "PHP 8.2 lint upgrade-policy-transition/checker.php",
+      "status": "PASS"
+    },
+    {
+      "test": "PHP 8.2 lint upgrade-policy-transition/payload/app/Core/LiveUpgradeManager.php",
+      "status": "PASS"
+    },
+    {
+      "test": "PHP 8.2 lint upgrade-policy-transition/payload/app/Core/ProductionBaseline.php",
+      "status": "PASS"
+    },
+    {
+      "test": "PHP 8.2 lint upgrade-policy-transition/payload/app/Core/UpgradePackage.php",
+      "status": "PASS"
+    },
+    {
+      "test": "PHP 8.2 lint upgrade-policy-transition/payload/app/Core/UpgradePolicy.php",
+      "status": "PASS"
+    },
+    {
+      "test": "PHP 8.2 lint upgrade-policy-transition/payload/app/Core/UpgradeWeb.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Hosting activation copies fixed five files",
+      "status": "PASS"
+    },
+    {
+      "test": "Policy recorded in upgrade history",
+      "status": "PASS"
+    },
+    {
+      "test": "Consumed grant cannot replay",
+      "status": "PASS"
+    },
+    {
+      "test": "After hash app/Core/LiveUpgradeManager.php",
+      "status": "PASS"
+    },
+    {
+      "test": "After hash app/Core/ProductionBaseline.php",
+      "status": "PASS"
+    },
+    {
+      "test": "After hash app/Core/UpgradePackage.php",
+      "status": "PASS"
+    },
+    {
+      "test": "After hash app/Core/UpgradePolicy.php",
+      "status": "PASS"
+    },
+    {
+      "test": "After hash app/Core/UpgradeWeb.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Automatic backup verified",
+      "status": "PASS"
+    },
+    {
+      "test": "Restored backup table counts and schema verified",
+      "status": "PASS"
+    },
+    {
+      "test": "Restore all table values equals pre-transition snapshot",
+      "status": "PASS"
+    },
+    {
+      "test": "Restored pre-transition version preserved",
+      "status": "PASS"
+    },
+    {
+      "test": "Apache deny HEAD activate.php",
+      "status": "PASS",
+      "http": 403
+    },
+    {
+      "test": "Apache deny GET activate.php",
+      "status": "PASS",
+      "http": 403
+    },
+    {
+      "test": "Apache deny HEAD Transition.php",
+      "status": "PASS",
+      "http": 403
+    },
+    {
+      "test": "Apache deny GET Transition.php",
+      "status": "PASS",
+      "http": 403
+    },
+    {
+      "test": "Apache deny HEAD transition-manifest.json",
+      "status": "PASS",
+      "http": 403
+    },
+    {
+      "test": "Apache deny GET transition-manifest.json",
+      "status": "PASS",
+      "http": 403
+    },
+    {
+      "test": "Apache deny HEAD payload/app/Core/UpgradePolicy.php",
+      "status": "PASS",
+      "http": 403
+    },
+    {
+      "test": "Apache deny GET payload/app/Core/UpgradePolicy.php",
+      "status": "PASS",
+      "http": 403
+    },
+    {
+      "test": "Hosting marker enables owner policy",
+      "status": "PASS"
+    },
+    {
+      "test": "Policy marker corruption fails closed",
+      "status": "PASS"
+    },
+    {
+      "test": "Ordinary ZIP cannot replace UpgradePolicy.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Ordinary ZIP cannot replace UpgradePackage.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Ordinary ZIP cannot replace LiveUpgradeManager.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Ordinary ZIP cannot replace UpgradeWeb.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Ordinary ZIP cannot replace InstallationKey.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Owner package verifies actual eight payloads",
+      "status": "PASS"
+    },
+    {
+      "test": "ZIP cannot self-authorize policy",
+      "status": "PASS"
+    },
+    {
+      "test": "Payload checksum mismatch rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Backup failure prevents automatic file installation",
+      "status": "PASS"
+    },
+    {
+      "test": "Failed backup leaves Phase3A files absent",
+      "status": "PASS"
+    },
+    {
+      "test": "Backup failure reports BLOCKED",
+      "status": "PASS"
+    },
+    {
+      "test": "Owner automatic stage works",
+      "status": "PASS"
+    },
+    {
+      "test": "Expired authorization denies install",
+      "status": "PASS"
+    },
+    {
+      "test": "Staged package survives expired auth",
+      "status": "PASS"
+    },
+    {
+      "test": "Full Phase3A preflight passes",
+      "status": "PASS"
+    },
+    {
+      "test": "Auto install without extra account password",
+      "status": "PASS"
+    },
+    {
+      "test": "Existing eforms engine applied eforms:Phase2:220_public_programs.sql",
+      "status": "PASS"
+    },
+    {
+      "test": "Existing eforms engine applied eforms:Phase2:221_public_program_seed.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Core version preserved",
+      "status": "PASS"
+    },
+    {
+      "test": "Training version preserved",
+      "status": "PASS"
+    },
+    {
+      "test": "Installation replay blocked",
+      "status": "PASS"
+    },
+    {
+      "test": "Policy rollback blocked after dependent migrations",
+      "status": "PASS"
+    },
+    {
+      "test": "Successful install leaves no recovery lock",
+      "status": "PASS"
+    },
+    {
+      "test": "Old publisher policy rejects owner ZIP",
+      "status": "PASS"
+    },
+    {
+      "test": "No key authorization denies grant",
+      "status": "PASS"
+    },
+    {
+      "test": "12 digit leading zero key works",
+      "status": "PASS"
+    },
+    {
+      "test": "CSRF omission denied",
+      "status": "PASS"
+    },
+    {
+      "test": "Valid CSRF accepted",
+      "status": "PASS"
+    },
+    {
+      "test": "Non-admin denies grant",
+      "status": "PASS"
+    },
+    {
+      "test": "Exact baseline and actual backup/HTTP preflight",
+      "status": "PASS"
+    },
+    {
+      "test": "Baseline drift prevents hosting grant",
+      "status": "PASS"
+    },
+    {
+      "test": "Backup unsupported schema blocks activation grant",
+      "status": "PASS"
+    },
+    {
+      "test": "Tampered hosting grant rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Expired hosting grant rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Action substitution rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Second isolated activation",
+      "status": "PASS"
+    },
+    {
+      "test": "Later successful release blocks policy rollback",
+      "status": "PASS"
+    },
+    {
+      "test": "Hosting rollback restores prior five-file state",
+      "status": "PASS"
+    },
+    {
+      "test": "Restored app/Core/LiveUpgradeManager.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Restored app/Core/ProductionBaseline.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Restored app/Core/UpgradePackage.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Restored app/Core/UpgradePolicy.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Restored app/Core/UpgradeWeb.php",
+      "status": "PASS"
+    },
+    {
+      "test": "Policy marker removed",
+      "status": "PASS"
+    }
+  ],
+  "not_tested": [
+    "Production activation and production migrations (not authorized)",
+    "MySQL 8 restore execution (isolated tests used MariaDB 10.11)",
+    "Browser end-to-end interaction with checker/login; PHP gates and actual Apache HTTP denial tested",
+    "cPanel/LiteSpeed runtime; hosting preflight mandatory"
+  ],
+  "prior_evidence": {
+    "63_tests": "Retained, not rerun",
+    "49_tests": "Retained, unchanged production Backup implementation; additional transition and install tests run here"
+  },
+  "limits": [
+    "Local full installation returned VERIFIED_LOCAL_INSTALL, not production acceptance.",
+    "Post-install baseline capture in synthetic fixture BLOCKED because the reduced fixture omits full baseline context; local install, payload hashes and migration verification PASS.",
+    "No automatic production database rollback. Tested SQL restore goes into a separate isolated database.",
+    "Backup engine fails closed for unsupported views/triggers/routines/events/spatial and incomplete metadata privileges.",
+    "Remote release catalogue remains signed; owner mode applies to Super Admin-uploaded ZIPs."
+  ]
+}

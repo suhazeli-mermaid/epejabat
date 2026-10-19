@@ -1,0 +1,17 @@
+ONE CONTROLLED SESSION — only after user deployment and approval for test writes
+Use synthetic identities and an SMTP sink; no real queued delivery flush.
+[ ] Verify module version eforms1.3.0, migration checksums210/211/212, existing Core/Training versions unchanged.
+[ ] Login, staff profile, registration and Training navigation regression.
+[ ] Admin uploads Lampiran A ZIP; invalid hash/executable ZIP rejected; staff cannot import.
+[ ] Select local reviewers and confirm draft. Inspect original PDF, edit a label, conditional field, field order and PDF mapping; save/reopen.
+[ ] Preview desktop/mobile, confirm all maps and policy, publish explicitly.
+[ ] Staff within scope sees form; outside-scope staff cannot see/start/download it.
+[ ] Draft -> submit -> return -> correct -> resubmit -> sequential approval, no self-approval.
+[ ] Print blank/completed/approved PDFs; compare every original page visually for alignment, clipping and original wording.
+[ ] Import OFF, sanitised Cuti and synthetic packages without code changes; configure different reviewers/workflows.
+[ ] Same package import idempotent; revision conflict rejected; restore revision as draft; old submission remains on old version.
+[ ] Unpublish blocks new submissions while authorised historic submission access remains.
+[ ] Check audit and queued notifications; do not deliver emails without approval.
+[ ] Browser rendering at 320/375/390/430/768/1024/1440; drag/drop, touch, preview, table overflow and modal controls.
+[ ] Verify private staging/PDF/attachment HTTP denial. Remove temporary preflight and deployment staging after success.
+Record PASS/FAIL/BLOCKED/NOT TESTED individually. Do not lock baseline until critical checks pass.

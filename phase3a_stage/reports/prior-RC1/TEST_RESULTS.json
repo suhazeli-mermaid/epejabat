@@ -1,0 +1,174 @@
+{
+  "tests": [
+    {
+      "test": "Program save and public random code",
+      "status": "PASS"
+    },
+    {
+      "test": "Single child received",
+      "status": "PASS"
+    },
+    {
+      "test": "Quota counts children with partial household waitlist",
+      "status": "PASS"
+    },
+    {
+      "test": "Duplicate identity rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Duplicate within one request rejects atomic batch",
+      "status": "PASS"
+    },
+    {
+      "test": "No partial inserts",
+      "status": "PASS"
+    },
+    {
+      "test": "Full quota waits",
+      "status": "PASS"
+    },
+    {
+      "test": "Repeated request idempotent",
+      "status": "PASS"
+    },
+    {
+      "test": "Scoped token only own child",
+      "status": "PASS"
+    },
+    {
+      "test": "Public status contains no name MyKid email",
+      "status": "PASS"
+    },
+    {
+      "test": "Invalid token denied",
+      "status": "PASS"
+    },
+    {
+      "test": "Expired token denied",
+      "status": "PASS"
+    },
+    {
+      "test": "Quota blocks promotion",
+      "status": "PASS"
+    },
+    {
+      "test": "New arrivals cannot jump waiting queue",
+      "status": "PASS"
+    },
+    {
+      "test": "Promotion FIFO",
+      "status": "PASS"
+    },
+    {
+      "test": "Promotion preserves place separation",
+      "status": "PASS"
+    },
+    {
+      "test": "Quota below allocated rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Stale edit rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Age out of range rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Invalid DOB rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "MyKid format rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "Anonymous admin denied",
+      "status": "PASS"
+    },
+    {
+      "test": "Cross-org registry denied",
+      "status": "PASS"
+    },
+    {
+      "test": "Unprivileged export denied",
+      "status": "PASS"
+    },
+    {
+      "test": "Unprivileged promotion denied",
+      "status": "PASS"
+    },
+    {
+      "test": "Profile encrypted at rest",
+      "status": "PASS"
+    },
+    {
+      "test": "Audit no raw identity/contact",
+      "status": "PASS"
+    },
+    {
+      "test": "Email queued exact guardian without child identity",
+      "status": "PASS"
+    },
+    {
+      "test": "Manual close enforced",
+      "status": "PASS"
+    },
+    {
+      "test": "Opening boundary enforced",
+      "status": "PASS"
+    },
+    {
+      "test": "Closing boundary enforced",
+      "status": "PASS"
+    },
+    {
+      "test": "Rate limit 13th attempt",
+      "status": "PASS"
+    },
+    {
+      "test": "eForms required validation reused",
+      "status": "PASS"
+    },
+    {
+      "test": "eForms no-PDF version bound",
+      "status": "PASS"
+    },
+    {
+      "test": "Public form has CSRF children and acknowledgement",
+      "status": "PASS"
+    },
+    {
+      "test": "No guardian staff accounts created",
+      "status": "PASS"
+    },
+    {
+      "test": "No production email sent",
+      "status": "PASS"
+    },
+    {
+      "test": "CSRF rejection",
+      "status": "PASS"
+    },
+    {
+      "test": "Migration replay ledger stable",
+      "status": "PASS"
+    },
+    {
+      "test": "Eight simultaneous registrations quota one: exactly one received seven waitlisted",
+      "status": "PASS"
+    }
+  ],
+  "php": "8.2.32",
+  "database": "10.11.18-MariaDB-0+deb12u1",
+  "chrome": "NOT TESTED",
+  "safari": "NOT TESTED",
+  "production": "NOT TESTED",
+  "summary": {
+    "PASS": 40,
+    "FAIL": 0
+  },
+  "release_readiness": "PARTIAL \u2014 browser, hosting and production baseline unverified"
+}

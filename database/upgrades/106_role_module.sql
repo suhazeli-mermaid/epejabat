@@ -1,0 +1,1 @@
+ALTER TABLE roles ADD module_code VARCHAR(64) NOT NULL DEFAULT 'core', ADD is_active TINYINT NOT NULL DEFAULT 1;

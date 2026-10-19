@@ -1,0 +1,31 @@
+epejabat.net — PHASE 2C / e-Forms 1.3.0 RC1
+STATUS: PARTIAL. Development acceptance not closed. Production unchanged.
+
+Delivered integration
+- Pusat Borang Digital and organisation-scoped searchable form library.
+- Admin ZIP upload, bounded inspection, file integrity, schema/capability gates, actor-bound one-hour staging, confirmation and transactional DRAFT import.
+- Form identifiers per organisation; sequential package revisions; identical import idempotency; conflicting content rejected.
+- Admin selects local authorised reviewers. Package cannot assign authority or allow self-approval.
+- Selected existing editor/PDF components: no-code fields, conditional rules, workflow editor, original PDF positioning, desktop/mobile preview controls, revision restore, publish/unpublish.
+- Existing staff draft/submission/approval/return, private attachments, notification queue and audit retained.
+- Original PDFs stored immutably; older submissions retain their exact revision.
+- Application/Core/Training not version-bumped. Target module version only: eforms 1.3.0.
+
+Evidence
+42 PHP/MariaDB service assertions, 9 real HTTP assertions, 26 JavaScript/editor/PDF model assertions and 4 all-form PDF page-dimension checks PASS. PHP lint and JavaScript syntax checked. HTTP tests include actual multipart upload, CSRF rejection, confirmation to Studio, Admin login and staff access denial. HTTP is not browser visual testing.
+Four examples: Lampiran A, OFF, Cuti (sanitised blank), synthetic equipment request. Same package importer and engine, no per-form PHP controllers. Original Cuti containing private information is not distributed.
+No production email, staff records, production migrations or deployment performed.
+
+Outstanding acceptance
+- Actual browser/mobile interaction at 320/375/390/430/768/1024/1440: NOT TESTED.
+- Current browser PDF visual fidelity and drag/drop: NOT TESTED. Prior Phase 2B selected engine visual evidence exists, but is not Phase 2C acceptance.
+- Production exact hashes/ledger/environment: BLOCKED until authenticated preflight PASS. Last-known source is not proof of installed state.
+- MySQL 8 runtime: NOT TESTED; local MariaDB 10.11.18 and PHP 8.2 tested.
+- Publisher signing service unavailable. This is unsigned controlled manual deployment, NOT an /upgrade signed archive. Existing trust keys unchanged.
+- Existing RC3 deployment is NOT assumed. RC3 source is selected selectively: no AI adapter/settings, no RC3 migration deployment. Already installed RC3 tables/modified source cause fail-closed conflict; reconcile before installing.
+
+Limitations
+Package schema 1.0 accepts exactly JSON and original.pdf; optional static assets, executable content and external resources are rejected. No Word parser in production: prepare a PDF-based declarative package in Work. Archive reuses existing inactive state, not a new archive status. New revision import makes the template DRAFT until explicit re-publication; existing submissions remain usable. Owner/scope is selected locally; changing existing template organisation is denied. One template per organisation; reuse the same package in another authorised organisation where required.
+PDF parser uses local PDF.js with eval/XFA disabled and limits; no malware scanner installed. Treat source PDFs as untrusted documents and review them. Uploaded PDF original may contain document actions; controlled download is not a sanitisation claim. Rendering is browser-based overlay, with warnings; not cryptographic signed PDF. Typed approval details are not handwritten signatures or PKI. Standard font limitations apply; unsupported glyphs need review.
+Staging expires after one hour, but files are retained privately for audit/recovery; scheduled retention cleanup is not implemented. Delete only expired, unreferenced staging through controlled maintenance after backup. Import identities/audit remain.
+Actual UI tests and production compatibility remain required before COMPLETE / production acceptance.

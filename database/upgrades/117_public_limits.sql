@@ -1,0 +1,1 @@
+CREATE TABLE public_flow_attempts (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, flow_key VARCHAR(30) NOT NULL, ip_hash CHAR(64) NOT NULL, account_hash CHAR(64) NOT NULL, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, INDEX(flow_key,ip_hash,created_at), INDEX(flow_key,account_hash,created_at)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,0 +1,12 @@
+epejabat FRESH v1.0.0 — cPanel (5 langkah)
+PHP minimum 8.2. MySQL 8.0.16+ / MariaDB 10.6+. Apache/LiteSpeed mesti membenarkan .htaccess (AllowOverride All), Rewrite, Require dan DirectorySlash. PHP mesti boleh membaca/menulis sebagai pemilik akaun cPanel. Extensions: pdo_mysql, mbstring, ctype, filter, hash, json, session, openssl, fileinfo, zip, SimpleXML. Aktifkan HTTPS. Deployment/deletion production belum diluluskan atau dilakukan.
+
+1. Backup aplikasi/config/key/storage serta database production dan sahkan backup. Sediakan database BAHARU KOSONG dengan user berizin. Selepas kelulusan deployment, sediakan project root kosong /home/epejabat/pkdkb.epejabat.net/ sambil menyimpan aplikasi lama sebagai backup; jangan delete production atau extract atas fail lama.
+2. Upload epejabat_FRESH_v1.0.0_INSTALL.zip melalui cPanel File Manager ke folder akaun, sebaiknya di luar document root.
+3. Extract kandungan ZIP terus ke root kosong yang diluluskan. index.php dan .htaccess mesti berada di /home/epejabat/pkdkb.epejabat.net/, tanpa subfolder tambahan. Aktifkan Show Hidden Files. Jangan gunakan epejabat_private. Semak config/storage writable oleh PHP; jangan guna 0777. Padam ZIP dari web root jika tersalin ke sana.
+4. Buka https://pkdkb.epejabat.net/install. Dalam File Manager, View config/setup.php dan salin token sementara. Masukkan token, konfigurasi database kosong, Test Connection, pasang database, cipta Super Admin (password 12–72 bait) serta nama/kod PKD awal, dan sahkan semula password. Perlindungan HTTP folder mesti lulus; jika BLOCKED, betulkan .htaccess/TLS/permissions dahulu.
+5. Klik Selesai & kunci installer. Shared Core + Training T1–T6 dimigrasi dan disahkan sebelum lock akhir. Log masuk, semak dashboard/profil/program, pastikan /install ditolak dan versi 1.0.0 dipaparkan. Semak /upgrade sebagai Super Admin; SMTP perlu dikonfigurasi sebelum claim/reset email boleh dihantar. Jalankan smoke checklist dalam docs. Jika gagal, hentikan, simpan ledger/log/config dan ikut docs/ROLLBACK.txt; jangan delete lock atau reinstall.
+
+Upgrade masa depan: https://pkdkb.epejabat.net/upgrade
+CLI tambahan: php bin/platform.php environment | version | migration-status | integrity | smoke | http-deny | diagnostics
+Hanya token pemasangan sementara dijana; ZIP tiada database/SMTP credentials atau signing private key.

@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "test": "Add child index follows array structure",
+      "status": "PASS"
+    },
+    {
+      "test": "Remove renumbers remaining child",
+      "status": "PASS"
+    },
+    {
+      "test": "Cannot remove last child",
+      "status": "PASS"
+    },
+    {
+      "test": "Search filters rows",
+      "status": "PASS"
+    },
+    {
+      "test": "Status filter applies",
+      "status": "PASS"
+    }
+  ],
+  "browser": "NOT TESTED — jsdom DOM only"
+}

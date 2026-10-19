@@ -1,0 +1,6 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';import {overlay} from '../payload/assets/eforms-engine.mjs';import {PDFDocument} from '../payload/assets/eforms-vendor/pdf-lib.mjs';
+const tests=[];
+for(const [name,file] of Object.entries({Lampiran_A:'Lampiran_A_Blank.pdf',Off:'Off_Blank.pdf',Cuti:'Cuti_Sanitised_Test_Blank.pdf',Synthetic:'Synthetic_Equipment_Request_Blank.pdf'})){
+ const d=JSON.parse(fs.readFileSync('phase2b/samples/'+name+'_Reviewed_Template.json'));const bytes=fs.readFileSync('phase2b/samples/'+file);const original=await PDFDocument.load(bytes);const out=await overlay(new Uint8Array(bytes),d.definition,d.fields,d.synthetic_values,{approved:false});const generated=await PDFDocument.load(out.bytes);assert.equal(generated.getPageCount(),original.getPageCount());for(let i=0;i<original.getPageCount();i++)assert.deepEqual(generated.getPage(i).getSize(),original.getPage(i).getSize());tests.push({form:name,status:'PASS',pages:original.getPageCount(),check:'Overlay generation and original page dimensions; visual fidelity NOT TESTED in this run'});
+}
+fs.writeFileSync('phase2c/reports/all-package-pdf.json',JSON.stringify({tests,pass:4,fail:0},null,2));console.log('4 PDF package integration assertions PASS');

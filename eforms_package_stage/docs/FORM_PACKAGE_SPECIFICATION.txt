@@ -1,0 +1,24 @@
+FORM PACKAGE SPECIFICATION 1.0 — declarative content, not application deployment
+Exactly six root files; no folders or extra files:
+manifest.json, form.json, workflow.json, pdf-mapping.json, layout.json, original.pdf.
+Maximum archive 12 MiB, total declared content 12,000,000 bytes, PDF 10 MiB, each JSON 300,000 bytes; compression stored/deflate, ratio <=200. No encryption, symlinks, traversal, duplicates, executable files or external assets.
+
+manifest.json:
+schema_version = "1.0"; engine_min = "eforms-packages/1.0";
+form_id lowercase [a-z][a-z0-9._-]{2,99}; revision integer 1..100000;
+title <=190; description <=2000; category <=100;
+organisation_scope exactly {"mode":"admin_select"};
+capabilities subset of original_pdf, conditional_fields, repeatable_rows, profile_autofill, sequential_approval;
+files object maps each of the five other filenames to its lowercase SHA-256. Manifest cannot hash itself. Whole ZIP SHA-256 is computed by the application and stored with the audit/import identity. This is integrity verification, NOT publisher authentication.
+
+form.json: fields array and acknowledgement string (<=1000).
+Field schema reuses existing EForms Schema::definition. Supported keys: key,label,type,options,condition,required,autofill,columns,max_rows,min,max,max_length,confidence,placeholder,help. Unknown keys rejected. Existing supported types and validation are authoritative; see delivered Schema.php and the four examples. Conditional references must be valid and ordered. No PHP/HTML/JS logic. Profile auto-fill accepts only existing engine allowlist.
+workflow.json: steps array 1..5 of {kind:"review"|"approve",label:string}; final kind approve. allow_self_approval=false, allow_return=true, allow_reject=true. User IDs, PKD IDs and claimed authority cannot be embedded. Admin selects active authorised local reviewers before import.
+pdf-mapping.json: {pages:[{width:number,height:number}],maps:[...]} using existing Visual::definition. Coordinates in original PDF page points, top-left editor convention. Each map specifies key,page(1-based),x,y,width,height,fontSize,align,wrap,markValue,confirmed. Supports approved metadata via existing protected @approved*/@step_N_* keys. Import forcibly resets confirmed=false and review_confirmed=false. Admin must review before publishing. Metadata does not prove real PDF dimensions; renderer validates actual document and mapping.
+layout.json: {mode:"original_pdf",effective_date:""|"YYYY-MM-DD"}.
+original.pdf: original blank source. Use sanitised blank templates, not filled staff or patient forms. Prefer normal unencrypted PDFs; unsupported originals fail rendering and must not be published.
+
+Identity is (local organisation,form_id). New form requires revision1; next package revision is previous+1. Same revision/different archive hash is blocked. Same hash is idempotent. Editing/restoring creates an independent immutable template revision; package revision is preserved as source provenance. Imported drafts never auto-publish. Workflow suggestion is not policy approval.
+
+Ordinary form package installation after Manager setup:
+Super Admin/authorised Admin -> Pusat Borang Digital -> Import ZIP Borang -> Validate -> choose organisation/reviewers -> Confirm DRAFT -> visual preview/edit -> Publish. No cPanel, PHP edits or application migration for new ordinary forms.

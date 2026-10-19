@@ -1,0 +1,22 @@
+{
+  "release": "public_programs 0.1.0-rc1",
+  "signed": false,
+  "production_baseline": "NOT VERIFIED",
+  "files": {
+    "public-program.php": "817b1645d81564c66f29a7265f45f5baf6fa5d3e94992d81e7697e196e5d632b",
+    "assets/public-program.css": "50017992bffd36a2b18b3e97443dfacb1ff6b137230c3ba9564a034d1507a2c4",
+    "assets/public-program.js": "f1fb5186d06fb4761dac04112706f09cb076f3850c17d08a190e06a4ba52cfc2",
+    "database/eforms-manifest.json": "69c1379f9acd9a2bd0205aee3801dfbb8e90dbfccf97b03829c41b5c538af240",
+    "app/Modules/PublicPrograms/Service.php": "9b9c2c1edb6bd358df9bad5fca4a019673cd4670113209c49c751079cc2fa323",
+    "app/Modules/PublicPrograms/Web.php": "1bcfdd8fe1d1d4ecbe834cc8f627860c423399b7a315ef2f2ba5279e9c774786",
+    "database/modules/eforms/221_public_program_seed.php": "353c8f2600a62ff82e6f91a342ae1d6a2488c4defbd81ad901dfa495dbe81c9f",
+    "database/modules/eforms/220_public_programs.sql": "0aee1752e3ab17b1b110d8b26662561163dfd547594c6b67ee824c0b3fbf22f7"
+  },
+  "replaced_files": [
+    "database/eforms-manifest.json"
+  ],
+  "migrations": [
+    "220_public_programs.sql",
+    "221_public_program_seed.php"
+  ]
+}

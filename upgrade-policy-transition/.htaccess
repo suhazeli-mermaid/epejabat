@@ -1,0 +1,4 @@
+Options -Indexes
+<FilesMatch "^(?!checker\.php$).*">
+Require all denied
+</FilesMatch>

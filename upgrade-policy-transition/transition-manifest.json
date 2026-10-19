@@ -1,0 +1,34 @@
+{
+  "format": "epejabat-hosting-policy-transition-v1",
+  "from_app": "1.2.0",
+  "to_app": "1.2.1",
+  "mode": "owner-authorized-v1",
+  "files": [
+    {
+      "file": "app/Core/LiveUpgradeManager.php",
+      "before_sha256": "f96d0d34058760467cdd9db3c773a001dabf47836dad221890fad89072d57d78",
+      "after_sha256": "c39d127181412ffeb62941790e2d949f850f00c095f75aa2c6b1448862503679"
+    },
+    {
+      "file": "app/Core/ProductionBaseline.php",
+      "before_sha256": "8182b9cbc6238f9e8d9f21892b2bfff4a9ce3ecf499c22912e3e07600aa1bc79",
+      "after_sha256": "42429e49c47b78483e9f08410e3d3420e1420cd6cc45fd96ce3368424148311d"
+    },
+    {
+      "file": "app/Core/UpgradePackage.php",
+      "before_sha256": "8b8d4cf0df2c4b4478b8637ccbd6241efd6fc16d90713b5c486d63d801526146",
+      "after_sha256": "b1b9870a3bdeda6118aa49a50e85156c4aa2f27036b54da0ba6144f32d2ad6ab"
+    },
+    {
+      "file": "app/Core/UpgradePolicy.php",
+      "before_sha256": null,
+      "after_sha256": "d4a9a7c7ffca6cafeb7c858f52e2822756231dc85a921a35a51499403cfdbbce"
+    },
+    {
+      "file": "app/Core/UpgradeWeb.php",
+      "before_sha256": "e12d8cb3e1003c78a199c297a460f62ddf378f279220d99aa078e92e0e091c8e",
+      "after_sha256": "ae27134322f567b01ce9807718fe847f791cbca63db54a11ed4dd352a9d3f616"
+    }
+  ],
+  "production_deployment_authorized": false
+}

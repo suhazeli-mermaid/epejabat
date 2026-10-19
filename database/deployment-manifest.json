@@ -1,0 +1,753 @@
+{
+  "release": "1.0.0",
+  "layout": "single-root",
+  "target": "https://pkdkb.epejabat.net",
+  "php_min": "8.2",
+  "files": [
+    {
+      "path": ".htaccess",
+      "sha256": "eb92dfae1dbea598811a5b0fd675050328304d24c7309a2f2765fbc34f9c2972",
+      "bytes": 547
+    },
+    {
+      "path": "app/.htaccess",
+      "sha256": "fa28d421a28ed9b6f4b997d5119c2b8adbacff6e2dd119a179b71230f9664934",
+      "bytes": 19
+    },
+    {
+      "path": "app/Core/AccessProtection.php",
+      "sha256": "f8f612dfebbd112fff1fe58007d0ad54c30bca3a3381871fd8729227e6abf2cd",
+      "bytes": 1520
+    },
+    {
+      "path": "app/Core/Accounts.php",
+      "sha256": "68bfef1822ace64c9b10f796b5138b2b208eebc7f40ba8b04159876ef8f926ec",
+      "bytes": 14012
+    },
+    {
+      "path": "app/Core/Audit.php",
+      "sha256": "277d0c15858e73da8664f29f61806914e2d8e472c65983f27694b142e3c46c40",
+      "bytes": 1832
+    },
+    {
+      "path": "app/Core/Auth.php",
+      "sha256": "05119dde45675528ea4a5398ecf2ee7e023d67f8ae61a3fd9153dcc7030a61ab",
+      "bytes": 3964
+    },
+    {
+      "path": "app/Core/Authorization.php",
+      "sha256": "8f5567c54320a84c9016ac8a9757b482ebe1a3e95da1896c1e5d6d3201de2174",
+      "bytes": 2714
+    },
+    {
+      "path": "app/Core/Backup.php",
+      "sha256": "4eeb7527aed9d9e23c7602bcc0a2fb071192c9b8d6289a78c6bdd60b41c46829",
+      "bytes": 1113
+    },
+    {
+      "path": "app/Core/Content.php",
+      "sha256": "bf3a42413fed2a9f60df6c822a869da18ea53d8edd9cb11bb018f065eed12886",
+      "bytes": 4059
+    },
+    {
+      "path": "app/Core/Core.php",
+      "sha256": "781d3b021df93d022e3935dbc7b4da959bca12bcdcbba8c68b1d655b444e3dee",
+      "bytes": 1850
+    },
+    {
+      "path": "app/Core/Crypto.php",
+      "sha256": "6e0fd53014a3ec22db6b8700403a6559fc563d96dccf5335674564cb8d59e352",
+      "bytes": 1498
+    },
+    {
+      "path": "app/Core/Database.php",
+      "sha256": "36391f0d0db1c12de8e57c6b373f283c5fde00759f20beab11be3a039c6256c6",
+      "bytes": 895
+    },
+    {
+      "path": "app/Core/Documents.php",
+      "sha256": "fb9461ea305215906e3b03038daa48bb3ca48f08257309c74e59c5c06d67b6a5",
+      "bytes": 5361
+    },
+    {
+      "path": "app/Core/FreshPlatform.php",
+      "sha256": "2aacb6d5f66af3f9de24fa7461b9f6e98b9413cc5b07417c3927f87d62be74b8",
+      "bytes": 2356
+    },
+    {
+      "path": "app/Core/GeneratedDocuments.php",
+      "sha256": "33444ca668029207f178e5977f97cc6eea7247c6344b26e87ab603fe0c4bdcac",
+      "bytes": 1595
+    },
+    {
+      "path": "app/Core/Imports.php",
+      "sha256": "76681c7e2e265d11cecbfedffd8b05501db6ea8902b8ecc83515f4e75d82db9d",
+      "bytes": 8217
+    },
+    {
+      "path": "app/Core/Installer.php",
+      "sha256": "5736055a8112d660ab0f51f4624db75f921dd6a457e2d34df2cdaf940e3ab4c3",
+      "bytes": 15901
+    },
+    {
+      "path": "app/Core/LiveUpgradeManager.php",
+      "sha256": "325c564c584f16cec798c615ae69a2b9b60de3221f777cf1e2394e6b7cacfdf5",
+      "bytes": 16538
+    },
+    {
+      "path": "app/Core/MasterData.php",
+      "sha256": "4173fbe1bba1d898bfecaed9185abe3e2cc592d770edaddd71e0e0355547e05d",
+      "bytes": 2593
+    },
+    {
+      "path": "app/Core/Migrations.php",
+      "sha256": "67a080ffced57454bb202bfd9b93ea3804f211c6dc7d49f2c0e805e7ae2cbe17",
+      "bytes": 3100
+    },
+    {
+      "path": "app/Core/ModuleAccess.php",
+      "sha256": "fbcd7257af27bcf1c70cbce31f2b4a07984182b8276f84d5edf4c389b4ca13f7",
+      "bytes": 1856
+    },
+    {
+      "path": "app/Core/Notifications.php",
+      "sha256": "d14bcac0eda7e94338dc033764b37f5f676dc018ae3cff88302c4971ef3532a5",
+      "bytes": 2987
+    },
+    {
+      "path": "app/Core/Organisations.php",
+      "sha256": "58abc2d12fd824e8ab35949249084e8fc7b312615eee35e4b2f59953da33bd5d",
+      "bytes": 4374
+    },
+    {
+      "path": "app/Core/Pdf.php",
+      "sha256": "f8c402d9f49073e7a90f1e479618bfe32ba06623fd9c7abdc5bd231b1810fa6d",
+      "bytes": 5519
+    },
+    {
+      "path": "app/Core/Roles.php",
+      "sha256": "ed386feed6029dd0041f5cd89623411bb11f2c313990c91648961213552a340c",
+      "bytes": 7576
+    },
+    {
+      "path": "app/Core/Rollback.php",
+      "sha256": "c7a6c14ae11f890e8de6622986f17c3d6235e1e253437455b2d1c847d42515c3",
+      "bytes": 2234
+    },
+    {
+      "path": "app/Core/Signatories.php",
+      "sha256": "75da1e60bc45fc29871114be4096378c7ab63cde48ef16cdfc1afe9aaa420939",
+      "bytes": 2804
+    },
+    {
+      "path": "app/Core/Smtp.php",
+      "sha256": "4c92f4f8b6d197c0bd3d413bd7fa44fb48f0031c5f01c2376b6455a044db5fb6",
+      "bytes": 3534
+    },
+    {
+      "path": "app/Core/SqlPolicy.php",
+      "sha256": "2ad4d4d420e6b786ac959266fc220f590e0fa5da9dc892bae990967d62e21eae",
+      "bytes": 698
+    },
+    {
+      "path": "app/Core/Staff.php",
+      "sha256": "36baf919fa8087eb2077cfb65385b4bf5c45d038403e688d09d82d8c416aa9c0",
+      "bytes": 13453
+    },
+    {
+      "path": "app/Core/Support.php",
+      "sha256": "0253fc17a8771059c11599a39b99dbe92eb98542c44fbc539bc42f28f1a158f4",
+      "bytes": 2780
+    },
+    {
+      "path": "app/Core/Ui.php",
+      "sha256": "bd97a0b1684ebeb106cc08f4b325a113de89960cdf4a1fc0d5965122803c94a1",
+      "bytes": 4481
+    },
+    {
+      "path": "app/Core/Upgrade.php",
+      "sha256": "353f2373e63124f9af6a00551a384dd8129044c9cd7a7ac0a385634e83eb0c62",
+      "bytes": 5374
+    },
+    {
+      "path": "app/Core/UpgradePackage.php",
+      "sha256": "8b8d4cf0df2c4b4478b8637ccbd6241efd6fc16d90713b5c486d63d801526146",
+      "bytes": 6097
+    },
+    {
+      "path": "app/Core/UpgradeWeb.php",
+      "sha256": "52ceb4cec42a01d8d1ec2158bd555ed17c484ee8ab935f23b1d60174da29bed9",
+      "bytes": 5209
+    },
+    {
+      "path": "app/Core/Versions.php",
+      "sha256": "066ca0b52fe07e7dba32fc1b703dfb5a103d1ca574897cac6a26dee7c3ff454e",
+      "bytes": 1610
+    },
+    {
+      "path": "app/Core/Web.php",
+      "sha256": "1d1312d4f62eea41d60b6ecdb2feceef5e26f07e16b00a3ba4eb7a437d8d500a",
+      "bytes": 43869
+    },
+    {
+      "path": "app/Modules/README.txt",
+      "sha256": "d507faeab386b8bcf97489dc368fca50a57fded74d6e00eaef6688c43ada37b8",
+      "bytes": 96
+    },
+    {
+      "path": "app/Modules/Training/Attendance.php",
+      "sha256": "02fc42f0d2999d1b74a364b99941dd4e8251f33f96011a086158e59741e0c9cf",
+      "bytes": 14927
+    },
+    {
+      "path": "app/Modules/Training/Cpd.php",
+      "sha256": "dab17ef874cd4e33f6e2003b627ba930fd23644f62c2091117c958f472bc24c3",
+      "bytes": 9929
+    },
+    {
+      "path": "app/Modules/Training/Evaluation.php",
+      "sha256": "58f45fc8fb618fd73f607ca48c64d4cefa8eba470ac02a0b92e213452534e30a",
+      "bytes": 6213
+    },
+    {
+      "path": "app/Modules/Training/Events.php",
+      "sha256": "a7a24df6b2f4b309f88e0898948711864f599cf6ae27ce2aae1f06375420a99c",
+      "bytes": 1747
+    },
+    {
+      "path": "app/Modules/Training/ExtendedMigrations.php",
+      "sha256": "96f8655e35096b5c27e34c505634f809507b498125ca0948d201b7355def3572",
+      "bytes": 3334
+    },
+    {
+      "path": "app/Modules/Training/ExtendedWeb.php",
+      "sha256": "81e139281ac9b044c231e76e6bd02926fb104fde6f103fa1e32e8a5af07fef6b",
+      "bytes": 23178
+    },
+    {
+      "path": "app/Modules/Training/Migrations.php",
+      "sha256": "65d30876ca270b81e1bbf0a020a8001973851f64c38023d272f3d80a1b189f64",
+      "bytes": 3613
+    },
+    {
+      "path": "app/Modules/Training/Official.php",
+      "sha256": "16387911a2aa08be6d0c3a84577c407a4aacb1501c2155ea02f776fa492b6329",
+      "bytes": 12275
+    },
+    {
+      "path": "app/Modules/Training/Policy.php",
+      "sha256": "93877e34b95154165d3fda7cafe9abf0ef70ac66966165dd781355305b56bd2d",
+      "bytes": 3181
+    },
+    {
+      "path": "app/Modules/Training/Programmes.php",
+      "sha256": "808e18b236d8c6f8aef581ce5578473d3919fa2b1ef6adf1db10cbe76e6476c1",
+      "bytes": 10410
+    },
+    {
+      "path": "app/Modules/Training/Qr.php",
+      "sha256": "b32156a4bacbc9f40cbc2d92d5bacd244d7b3356e3c97963d918333f37c228f8",
+      "bytes": 3116
+    },
+    {
+      "path": "app/Modules/Training/Registration.php",
+      "sha256": "fc2e476cfc08363e8b57d606b0e03fb3f126ead95a1cacab9c53e67e19f8f601",
+      "bytes": 11975
+    },
+    {
+      "path": "app/Modules/Training/Reporting.php",
+      "sha256": "48744a2a487701a811e5b1f4e08998c1dbdc86007ade3bcb03e3c06b15e7520b",
+      "bytes": 8741
+    },
+    {
+      "path": "app/Modules/Training/Roles.php",
+      "sha256": "ecc937eff5d04046d104f4ea6565b52a0e703494a0b39e6e5b937e738c23d76e",
+      "bytes": 4875
+    },
+    {
+      "path": "app/Modules/Training/Tokens.php",
+      "sha256": "be3b0a04df2d139a860ea1a713e60547a751a9a6f965f1bad0ba3ffe83ce031c",
+      "bytes": 4259
+    },
+    {
+      "path": "app/Modules/Training/TrainingDocuments.php",
+      "sha256": "430ff79a15f6fe07c254687931f216cb439a20e1ab83b1acf42659ec53bb578e",
+      "bytes": 2118
+    },
+    {
+      "path": "app/Modules/Training/Web.php",
+      "sha256": "4fd961134b106f245e3ca9210148b430bfd99c36b44ac4bbe8e3f95768f1c4c4",
+      "bytes": 24049
+    },
+    {
+      "path": "app/Modules/Training/Workflow.php",
+      "sha256": "32c5218b4c6e5f91ded285eb4f6d9cff185e91c078e5e2e442b8651190bbfd1a",
+      "bytes": 1523
+    },
+    {
+      "path": "app/access-probe.html",
+      "sha256": "5c3bd3643d3a4cbcdb3555e427bd0b53c0581b4620ce1e4be0d5aadce1d94015",
+      "bytes": 33
+    },
+    {
+      "path": "assets/app.css",
+      "sha256": "68cb8c9e1356fe43d581f44f7892341889b8165ed37c0e13a348145009a6e991",
+      "bytes": 4974
+    },
+    {
+      "path": "assets/app.js",
+      "sha256": "55fc9c9b8e9a46f4ad16ae8509addc6df8442f36bc3219b342e9c24c2e8bbb6b",
+      "bytes": 5718
+    },
+    {
+      "path": "assets/bootstrap.bundle.min.js",
+      "sha256": "e4fd49181388c48ec5040bd3fe66f57c29c8e67fcd8502b3354b96ec7ab47cc7",
+      "bytes": 80496
+    },
+    {
+      "path": "assets/bootstrap.min.css",
+      "sha256": "d85327d99c7a3ee1f9b5d0500d1370acea3ad2db39c163c2f51f232baedbdede",
+      "bytes": 232111
+    },
+    {
+      "path": "assets/fonts/DejaVuSansMono.ttf",
+      "sha256": "c805f9436dbc268644c1d9584f01a601a653e028e08fd74b9b949f6cf8304d88",
+      "bytes": 343140
+    },
+    {
+      "path": "assets/fonts/LICENSE.txt",
+      "sha256": "63d3ba759d12804c5b31a9d5940d855c1820d1f5999e6b0872eb1c7ff045fbc9",
+      "bytes": 3859
+    },
+    {
+      "path": "assets/jsQR.js",
+      "sha256": "bc40c8a15196236b2314db0856f72ca0b49980cd5413b8c852a7349f5fee0859",
+      "bytes": 256885
+    },
+    {
+      "path": "backup/.htaccess",
+      "sha256": "fa28d421a28ed9b6f4b997d5119c2b8adbacff6e2dd119a179b71230f9664934",
+      "bytes": 19
+    },
+    {
+      "path": "backup/access-probe.html",
+      "sha256": "5c3bd3643d3a4cbcdb3555e427bd0b53c0581b4620ce1e4be0d5aadce1d94015",
+      "bytes": 33
+    },
+    {
+      "path": "bin/.htaccess",
+      "sha256": "fa28d421a28ed9b6f4b997d5119c2b8adbacff6e2dd119a179b71230f9664934",
+      "bytes": 19
+    },
+    {
+      "path": "bin/access-probe.html",
+      "sha256": "5c3bd3643d3a4cbcdb3555e427bd0b53c0581b4620ce1e4be0d5aadce1d94015",
+      "bytes": 33
+    },
+    {
+      "path": "bin/module1.php",
+      "sha256": "c0eb0dd95b6c228a45df9bd56127eb5ecf8adb76c84caacc0b7524c2212660a8",
+      "bytes": 1349
+    },
+    {
+      "path": "bin/platform.php",
+      "sha256": "97eddae1f1c8765843c6f69b4e6662a9f31a96b22cc15a935e48c259a84162a0",
+      "bytes": 5425
+    },
+    {
+      "path": "bin/queue.php",
+      "sha256": "46d0b474381c8d540bb4f6efc0262c9c66bf24b4ef658f7281cf28be9d608e33",
+      "bytes": 886
+    },
+    {
+      "path": "bin/setup.php",
+      "sha256": "ed6a0fa45ce7bcdda0384f45ec6b564fd2c487f9c281f7317f8a76f98a24262b",
+      "bytes": 893
+    },
+    {
+      "path": "bin/training.php",
+      "sha256": "9c5da498ac4ea7660801abc63d8327800581bebc904ea3c0988ce0b3dbb93dd7",
+      "bytes": 1524
+    },
+    {
+      "path": "bin/verify.php",
+      "sha256": "c107c84897c9697d1a254895d5c61ca0e65cb73410cf4e0cfc92144de2675b03",
+      "bytes": 2322
+    },
+    {
+      "path": "bootstrap.php",
+      "sha256": "2f0159bc57776a561b9b237e3bdfcb87794e8af565613e1ec8a9ef97bec1f0c4",
+      "bytes": 5313
+    },
+    {
+      "path": "config/.htaccess",
+      "sha256": "fa28d421a28ed9b6f4b997d5119c2b8adbacff6e2dd119a179b71230f9664934",
+      "bytes": 19
+    },
+    {
+      "path": "config/access-probe.html",
+      "sha256": "5c3bd3643d3a4cbcdb3555e427bd0b53c0581b4620ce1e4be0d5aadce1d94015",
+      "bytes": 33
+    },
+    {
+      "path": "config/app.example.php",
+      "sha256": "5c350c417037cc3afcf3ed2bc076a39429d1ffef4c0ade99d9ee4b42d16ac131",
+      "bytes": 322
+    },
+    {
+      "path": "config/deployment.example.php",
+      "sha256": "0df4d86f9010c597055f1da9076bba1f4ac1a2a1d612d68358707fad5f198afb",
+      "bytes": 148
+    },
+    {
+      "path": "config/setup.example.php",
+      "sha256": "2891f2d4b25efc246f774846136aae169fdb66bd25faf6a20e9713e67535540a",
+      "bytes": 304
+    },
+    {
+      "path": "config/setup.php",
+      "sha256": "6f6b9af77e15fb79ea13ac5e6435c6419c248b4b9de93e1848383ba72e5a85d3",
+      "bytes": 150
+    },
+    {
+      "path": "config/smtp.example.php",
+      "sha256": "ff5fd35dde0cf1538baa19d95335df2f0a1a2dc026d08bdbf1146a7d412986f4",
+      "bytes": 190
+    },
+    {
+      "path": "config/upgrade-trust.php",
+      "sha256": "f64a9e9c76a5b4378bf31b44c79a45bcb0b44686e178c808078a30717396d8b2",
+      "bytes": 3054
+    },
+    {
+      "path": "database/.htaccess",
+      "sha256": "fa28d421a28ed9b6f4b997d5119c2b8adbacff6e2dd119a179b71230f9664934",
+      "bytes": 19
+    },
+    {
+      "path": "database/access-probe.html",
+      "sha256": "5c3bd3643d3a4cbcdb3555e427bd0b53c0581b4620ce1e4be0d5aadce1d94015",
+      "bytes": 33
+    },
+    {
+      "path": "database/migrations/000_database_migrations.sql",
+      "sha256": "87a93d9b8206507309ef4592c85839b28d9a443f767fc8c80ba245d9200b42d0",
+      "bytes": 321
+    },
+    {
+      "path": "database/migrations/001_organisations.sql",
+      "sha256": "4506455425b042e6c9ebeaa44df5714914c041da215499af5a35f2aef0bed41b",
+      "bytes": 501
+    },
+    {
+      "path": "database/migrations/002_organisation_hierarchy.sql",
+      "sha256": "672a961c43f033b7aaecdd587ec9f13d1b69e1d1a219d943d8e2f2426de66858",
+      "bytes": 487
+    },
+    {
+      "path": "database/migrations/003_staff_identities.sql",
+      "sha256": "d2c491734083c6b9807c2fd44874e0a265294ce01974ec7c006cb7aaaac04ea4",
+      "bytes": 288
+    },
+    {
+      "path": "database/migrations/004_staff_profiles.sql",
+      "sha256": "bf0e2c868781cff706649639b71f413cdc0fc1f20d24d301c154e209fa55fa70",
+      "bytes": 509
+    },
+    {
+      "path": "database/migrations/005_users.sql",
+      "sha256": "d2b841a05f81de79e2d8e05529c974a1f7c51d926840816189d4893aad196abb",
+      "bytes": 496
+    },
+    {
+      "path": "database/migrations/006_roles.sql",
+      "sha256": "de9901d205ebbcbc414fb02817efc975501772a041f3bef5c1b6197d0e49819b",
+      "bytes": 240
+    },
+    {
+      "path": "database/migrations/007_permissions.sql",
+      "sha256": "a3fd1e6724fd3301f0be1aa976d7acf61e8a8aa4e95d39137627a7c7d6bc148a",
+      "bytes": 261
+    },
+    {
+      "path": "database/migrations/008_role_permissions.sql",
+      "sha256": "7997161b96ece7ad12b52403fe8facfe5a77823b0d65c969ff9ed8c556d6b59e",
+      "bytes": 312
+    },
+    {
+      "path": "database/migrations/009_user_role_assignments.sql",
+      "sha256": "5380f717eff67c70b30e754348ba88c7fb2dfb78bddbe8472242334de1fa69b3",
+      "bytes": 629
+    },
+    {
+      "path": "database/migrations/010_audit_logs.sql",
+      "sha256": "e46e6ab1483a20c7fb9e21da619a2f22507e57c9329a65ab3f8dc11de2f03c18",
+      "bytes": 567
+    },
+    {
+      "path": "database/migrations/011_system_settings.sql",
+      "sha256": "ba99e1c1816e93242aac038e7f5c5d1204eeca56e5a43aef1acf265d90f26fb4",
+      "bytes": 252
+    },
+    {
+      "path": "database/migrations/012_login_attempts.sql",
+      "sha256": "8b987e4d0c54d4bb45e7ace320e4f2232f31bbb5a41fac5430a522c29ed979fb",
+      "bytes": 352
+    },
+    {
+      "path": "database/modules/training/001_tables.sql",
+      "sha256": "c0558a9bf5602659bee6fdfa3af2868782c146720839243f6281ff8864ac5135",
+      "bytes": 7338
+    },
+    {
+      "path": "database/modules/training/002_seeds.php",
+      "sha256": "f073c5f1c89c21d65cc7a03afa3dcd932ed5a9cd15cab4c81330850952470c3d",
+      "bytes": 2077
+    },
+    {
+      "path": "database/modules/training_complete/001_tables.sql",
+      "sha256": "9859fad3c4073d9fc5fe180e4c6687647ad16ec6214e1cbc3f67d40e571315d7",
+      "bytes": 9419
+    },
+    {
+      "path": "database/modules/training_complete/002_permissions.php",
+      "sha256": "57054b93a62bc58c6dd636cc6c5a019ae4892247339f46b03e90c5f518e439d6",
+      "bytes": 1384
+    },
+    {
+      "path": "database/release.json",
+      "sha256": "4da08382320d78524df3ffe40eb7790c26b85a2b27268f0e0006d6702077f3f9",
+      "bytes": 14247
+    },
+    {
+      "path": "database/upgrades/100_modules.sql",
+      "sha256": "2df5ed0f92a4e9f7e30ae3bf5e1f4cf7efa5116fc2ab9d3bc98140ee8271d155",
+      "bytes": 384
+    },
+    {
+      "path": "database/upgrades/101_master_data.sql",
+      "sha256": "cf94b6f15381c9c3af725697f113c67b108c03f3981024f858a8e765f484dc1c",
+      "bytes": 466
+    },
+    {
+      "path": "database/upgrades/102_organisation_fields.sql",
+      "sha256": "55a374bf438a6bd958c7a33ce0754408b03f69d90619cce57957b98f68a3b60c",
+      "bytes": 346
+    },
+    {
+      "path": "database/upgrades/103_organisation_type_check.php",
+      "sha256": "f73f3a97d6e36205e42634ca62b779e34f9b97b5655a32c714cb5ad2c9f4c716",
+      "bytes": 845
+    },
+    {
+      "path": "database/upgrades/104_profile_fields.sql",
+      "sha256": "4a550f672bb1f8894b03c8f507d2c0ab11e2f22c0568a56f92b0bba164b44d81",
+      "bytes": 722
+    },
+    {
+      "path": "database/upgrades/105_user_security.sql",
+      "sha256": "657e682e7d1f98f880d9c3cd679e7f52307c98f41cb6b9351c2d8491a0c2a10a",
+      "bytes": 112
+    },
+    {
+      "path": "database/upgrades/106_role_module.sql",
+      "sha256": "035ffe9cc0a48e35584e16d19f7f9ed75d57f4f81e6b5482e2e1b818053e67a8",
+      "bytes": 113
+    },
+    {
+      "path": "database/upgrades/107_assignment_module.sql",
+      "sha256": "ab5a8b3dd736b64ff51299f3f4681519b25384f8aa595b3fd92a9bbec91f260e",
+      "bytes": 87
+    },
+    {
+      "path": "database/upgrades/108_audit_fields.sql",
+      "sha256": "1c98f84c182e22519b88b982f10f67665fb783fb889d981e1e79a515ce1c561b",
+      "bytes": 201
+    },
+    {
+      "path": "database/upgrades/109_staff_registry.sql",
+      "sha256": "7852fcc3f5bfa075a7148815d525f4e6e489a88887d3cd88976d50d9ae4be963",
+      "bytes": 456
+    },
+    {
+      "path": "database/upgrades/110_employment_history.sql",
+      "sha256": "a7c8530fdb61e7bff5996f232f9d423701cfad0f400c212d6baeb744a209b513",
+      "bytes": 997
+    },
+    {
+      "path": "database/upgrades/111_credentials.sql",
+      "sha256": "fd69e9c16773188ca6524261991e2c3a5de4fee252473fe4ad494c274e9f7f2b",
+      "bytes": 498
+    },
+    {
+      "path": "database/upgrades/112_organisation_history.sql",
+      "sha256": "49dd5e4e88121ccfc61d2dca42a8f734bb28abbaa63e0f5512337cbb62e8e126",
+      "bytes": 482
+    },
+    {
+      "path": "database/upgrades/113_role_history.sql",
+      "sha256": "1af47b3b79368348e093c9884b7ead013fd0a9b0a36ada597ef1492484c5aa43",
+      "bytes": 457
+    },
+    {
+      "path": "database/upgrades/114_registrations.sql",
+      "sha256": "b8bf3655eeda7f9dd68d9a1aac77031586567ae8cb995e27d9cd2fbd3981a139",
+      "bytes": 817
+    },
+    {
+      "path": "database/upgrades/115_review_history.sql",
+      "sha256": "2ed7aa81c4851a32d28eb998fb378f3ec71b551e90bebb4e850f369ac2edcfa0",
+      "bytes": 444
+    },
+    {
+      "path": "database/upgrades/116_tokens.sql",
+      "sha256": "0a78810552ce257445d1311363cd59d925de9888ac3f07b139f827d67a73a31f",
+      "bytes": 638
+    },
+    {
+      "path": "database/upgrades/117_public_limits.sql",
+      "sha256": "f6cf6c686c24d3a8fed4414df3d26fad246d666dd7eba6bd2fcf188a1f2a76c7",
+      "bytes": 371
+    },
+    {
+      "path": "database/upgrades/118_templates.sql",
+      "sha256": "74bad538ff423db73feee52527870a7d3b8a062a7989c8492b7bdd6e9be35511",
+      "bytes": 230
+    },
+    {
+      "path": "database/upgrades/119_notifications.sql",
+      "sha256": "06ef8087ceb2c0e8656544cf8638daf2baa729d73e553845432e926d7b5ef501",
+      "bytes": 419
+    },
+    {
+      "path": "database/upgrades/120_deliveries.sql",
+      "sha256": "b6d28462b6f6d981bac5e318e4a576c0fddae908242a3d95efb96a20ba63d5d1",
+      "bytes": 658
+    },
+    {
+      "path": "database/upgrades/121_documents.sql",
+      "sha256": "0f62c53ae88758e0d554a38e07361b7fdb633e6f8430591c4442869615bc94f4",
+      "bytes": 567
+    },
+    {
+      "path": "database/upgrades/122_document_versions.sql",
+      "sha256": "cfbaed70155789d15c44f894837ab5bd29e307aadc9108e04e734fac854eed94",
+      "bytes": 602
+    },
+    {
+      "path": "database/upgrades/123_import_batches.sql",
+      "sha256": "df4121f048d2f08536bff3322132e47ab642fed23a8805f343931bed9ee3df71",
+      "bytes": 402
+    },
+    {
+      "path": "database/upgrades/124_import_items.sql",
+      "sha256": "f0dde8aead72f0bc155573d1549c346d614bc6f07443e5df405c9d13acd242e4",
+      "bytes": 462
+    },
+    {
+      "path": "database/upgrades/190_seed_core.php",
+      "sha256": "5d4213b30b373a077365210d3d6948c2046982e9b36ee26e702e3b2b9b6fe515",
+      "bytes": 4079
+    },
+    {
+      "path": "database/upgrades/200_platform_versioning.sql",
+      "sha256": "a6c2a8ccbe314f8f3a65ec6e915adfcaeb22896eee9140633d772ce7d5b46981",
+      "bytes": 582
+    },
+    {
+      "path": "docs/.htaccess",
+      "sha256": "fa28d421a28ed9b6f4b997d5119c2b8adbacff6e2dd119a179b71230f9664934",
+      "bytes": 19
+    },
+    {
+      "path": "docs/INSTALLATION_GUIDE.txt",
+      "sha256": "532643ecaa3f4ad93496869b9eb43b05e626d4ab07870f12c08fc71d787c6cbd",
+      "bytes": 2346
+    },
+    {
+      "path": "docs/PHP_LINT.json",
+      "sha256": "2b9cff83e3910802ba7e359c80c1c1dce264e16ff8227cc825e1cd6d90d8de2f",
+      "bytes": 6496
+    },
+    {
+      "path": "docs/ROLLBACK.txt",
+      "sha256": "a79904b92e936b5542b11dc2b789d4d0471fc8635c85f3b7740e26426387faf4",
+      "bytes": 2675
+    },
+    {
+      "path": "docs/SMOKE_CHECKLIST.txt",
+      "sha256": "09b485e1fb0964b86733e944448b312a61f46d6f7aa19391d3932306acba610a",
+      "bytes": 2358
+    },
+    {
+      "path": "docs/TEST_READINESS_REPORT.txt",
+      "sha256": "890549e18fd67fa5199b13708bfacfe9988b0cbfa076c8fa8a98d401c3540d4c",
+      "bytes": 5472
+    },
+    {
+      "path": "docs/TEST_RESULTS.json",
+      "sha256": "70d02ac2fb2cb30218c516b3a51e359f517dab19a2f388b7b651ed71b446eb29",
+      "bytes": 49155
+    },
+    {
+      "path": "docs/UPGRADE_FORMAT.txt",
+      "sha256": "c4d8c820d1f5f8b55475fced2057117375d3321113a7ebc76cad22808edec2d0",
+      "bytes": 2645
+    },
+    {
+      "path": "docs/access-probe.html",
+      "sha256": "5c3bd3643d3a4cbcdb3555e427bd0b53c0581b4620ce1e4be0d5aadce1d94015",
+      "bytes": 33
+    },
+    {
+      "path": "docs/licenses/BOOTSTRAP-LICENSE.txt",
+      "sha256": "4620c84ad5ce8602ff65640ed6b7c8b78ebb9e036584f0ebc1ccc88206a4bb51",
+      "bytes": 1093
+    },
+    {
+      "path": "docs/licenses/JSQR-LICENSE.txt",
+      "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08",
+      "bytes": 11358
+    },
+    {
+      "path": "index.php",
+      "sha256": "edd2d0334a31d7b1e119ff9e0c83301e39bce5b492b0082ba2e8f6a95483e426",
+      "bytes": 3617
+    },
+    {
+      "path": "install/README.txt",
+      "sha256": "b7b02aaac999a137ecbb202a565284b3c1ac183f77ea7adba8f1d00ed13547be",
+      "bytes": 165
+    },
+    {
+      "path": "install/index.php",
+      "sha256": "4da2ea25ec862636a8110063a1067e67cc284122ce8d7bdad05b5fc6407f2e50",
+      "bytes": 70
+    },
+    {
+      "path": "log/.htaccess",
+      "sha256": "fa28d421a28ed9b6f4b997d5119c2b8adbacff6e2dd119a179b71230f9664934",
+      "bytes": 19
+    },
+    {
+      "path": "log/access-probe.html",
+      "sha256": "5c3bd3643d3a4cbcdb3555e427bd0b53c0581b4620ce1e4be0d5aadce1d94015",
+      "bytes": 33
+    },
+    {
+      "path": "storage/.htaccess",
+      "sha256": "fa28d421a28ed9b6f4b997d5119c2b8adbacff6e2dd119a179b71230f9664934",
+      "bytes": 19
+    },
+    {
+      "path": "storage/access-probe.html",
+      "sha256": "5c3bd3643d3a4cbcdb3555e427bd0b53c0581b4620ce1e4be0d5aadce1d94015",
+      "bytes": 33
+    },
+    {
+      "path": "upgrade/index.php",
+      "sha256": "4da2ea25ec862636a8110063a1067e67cc284122ce8d7bdad05b5fc6407f2e50",
+      "bytes": 70
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+<?php
+declare(strict_types=1);
+
+// Templat produksi: salin sebagai config/app.php selepas menyediakan .env.
+// Tiada rahsia disimpan dalam fail yang dijejak Git ini.
+$read = static function (string $key): string {
+    $value = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
+    if (!is_string($value) || trim($value) === '' || str_starts_with($value, 'REPLACE_') || str_starts_with($value, 'CPANEL_')) {
+        throw new RuntimeException('Pembolehubah persekitaran belum ditetapkan: ' . $key);
+    }
+    return trim($value);
+};
+
+$appUrl = rtrim($read('APP_URL'), '/');
+if ($appUrl !== 'https://pkdkb.epejabat.net') {
+    throw new RuntimeException('APP_URL produksi mesti https://pkdkb.epejabat.net');
+}
+
+$instance = strtolower($read('APP_INSTANCE'));
+if (preg_match('/\A[a-f0-9]{32}\z/', $instance) !== 1) {
+    throw new RuntimeException('APP_INSTANCE mesti 32 aksara heksadesimal.');
+}
+
+$port = $read('DB_PORT');
+if (!ctype_digit($port) || (int) $port < 1 || (int) $port > 65535) {
+    throw new RuntimeException('DB_PORT tidak sah.');
+}
+
+return [
+    'app_url' => $appUrl,
+    'environment' => 'production',
+    'instance' => $instance,
+    'db' => [
+        'host' => $read('DB_HOST'),
+        'port' => (int) $port,
+        'name' => $read('DB_NAME'),
+        'user' => $read('DB_USER'),
+        'password' => $read('DB_PASSWORD'),
+    ],
+];

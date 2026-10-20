@@ -1,15 +1,16 @@
 <?php
 declare(strict_types=1);
 namespace EPejabat\Modules\PublicPrograms;
-use EPejabat\Core\{Core,Support,Ui};
+use EPejabat\Core\{AccessDenied,Core,Support,Ui};
 final class Web {
  static function e(mixed $x):string{return Support::escape($x);}
  static function input(string $n,string $l,string $type='text',mixed $v='',bool $required=true):string{return '<label>'.self::e($l).'<input name="'.self::e($n).'" type="'.self::e($type).'" value="'.self::e($v).'"'.($required?' required':'').' maxlength="255"></label>';}
  static function form(string $a,string $h,string $label):string{return Support::form($a,$h,$label);}
  public static function handle(\PDO $p,?array $user,string $origin):never {
-  $h='';$admin=isset($_GET['admin'])||($user!==null&&!isset($_GET['p'])&&($_POST['action']??'')!=='status');$id=Core::id($_GET['id']??null,true);
+  $h='';$admin=isset($_GET['admin']);$id=Core::id($_GET['id']??null,true);
   try {
    if($admin&&!$user)Support::redirect('/login');
+   if($admin&&!self::adminAllowed($p,(int)$user['id'],$id))throw new AccessDenied('Akses pentadbiran program awam ditolak.');
    if($_SERVER['REQUEST_METHOD']==='POST'){
     Support::checkCsrf();$action=Support::post('action',30);
     if($action==='register'){
@@ -20,15 +21,15 @@ final class Web {
      unset($_SESSION['public_program_issued'][$key]);
      $h='<h2>Permohonan diterima</h2><p>Pendaftaran bukan jaminan tempat, kelulusan klinikal atau subsidi.</p>';
      if(isset($r['url']))$h.='<p>Dalam kuota permohonan: '.$r['received'].' · Senarai menunggu: '.$r['waiting'].'</p><a href="'.self::e($r['url']).'">Simpan pautan status sulit</a>';
-     self::page($h);
+     self::page($p,$h);
     }
     if($action==='status'){
      Service::throttle($p,$_SERVER['REMOTE_ADDR']??'unknown');$rows=Service::status($p,Support::post('access',64));
      $h='<h2>Status permohonan</h2><p>Pautan ini hanya memberi akses status; bukan pengesahan identiti penjaga.</p>';
      foreach($rows as $r)$h.='<article><strong>ID Peserta: '.self::e($r['participant_code']).'</strong><p>'.self::e($r['registration_status']).'</p><p>Klinikal: '.self::e($r['clinical_status']).' · Bayaran: '.self::e($r['payment_status']).' · Tempat: '.self::e($r['place_status']).'</p></article>';
-     self::page($h);
+     self::page($p,$h);
     }
-    if(!$admin||!$user)throw new \RuntimeException('Akses ditolak.');
+    if(!$admin||!$user)throw new AccessDenied('Akses ditolak.');
     if($action==='delegate'){Service::delegate($p,(int)$user['id'],(int)$id,Core::id($_POST['target_user']??null),is_array($_POST['permissions']??null)?$_POST['permissions']:[],(int)($_POST['days']??0),Support::post('reason',500));Support::redirect('/public-program.php?admin=1&id='.(int)$id);}
     elseif($action==='save'){$new=Service::save($p,(int)$user['id'],$_POST,$id);Support::redirect('/public-program.php?admin=1&id='.$new);}
     elseif($action==='promote'){Service::promote($p,(int)$user['id'],(int)$id);$h='<p role="status">Peserta terawal dinaikkan ke kuota permohonan. Tempat masih belum disahkan.</p>';}
@@ -39,18 +40,18 @@ final class Web {
    if($admin){$h.=self::admin($p,(int)$user['id'],$id,$origin);}
    elseif(isset($_GET['p'])){$r=Service::q($p,'SELECT * FROM public_programs WHERE public_code=?',[is_string($_GET['p'])?$_GET['p']:''])->fetch();if(!$r)throw new \RuntimeException('Program tidak tersedia.');$h.=self::registration($p,$r);}
    else $h.='<h2>Semak permohonan</h2>'.self::form('status',self::input('access','Kod akses selamat','password'),'Semak status');
-  }catch(\PDOException $e){http_response_code(503);Support::log($e);$h='<p role="alert">Permintaan tidak dapat diproses. Cuba kemudian.</p>';}catch(\InvalidArgumentException|\RuntimeException $e){http_response_code(400);$h='<p role="alert">'.self::e($e->getMessage()).'</p><a href="'.($admin?'/public-program.php?admin=1':'/public-program.php').'">Kembali</a>';}
-  self::page($h);
+  }catch(\PDOException $e){http_response_code(503);Support::log($e);$h='<p role="alert">Permintaan tidak dapat diproses. Cuba kemudian.</p>';}catch(\InvalidArgumentException|\RuntimeException $e){http_response_code($e instanceof AccessDenied?403:400);$h='<p role="alert">'.self::e($e->getMessage()).'</p><a href="'.($admin?'/public-program.php?admin=1':'/public-program.php').'">Kembali</a>';}
+  self::page($p,$h);
  }
- static function page(string $h):never {
+ static function page(\PDO $p,string $h):never {
   $base=APP_ROOT.'/assets/public-program.';
-  Ui::layout('Program Awam','<link rel="stylesheet" href="/assets/public-program.css?v='.substr(hash_file('sha256',$base.'css'),0,12).'"><main class="pp">'.$h.'</main><script src="/assets/public-program.js?v='.substr(hash_file('sha256',$base.'js'),0,12).'" defer></script>',self::navigation(!empty($GLOBALS['ui_user'])));
+  Ui::layout('Program Awam','<link rel="stylesheet" href="/assets/public-program.css?v='.substr(hash_file('sha256',$base.'css'),0,12).'"><main class="pp">'.$h.'</main><script src="/assets/public-program.js?v='.substr(hash_file('sha256',$base.'js'),0,12).'" defer></script>');
  }
- public static function navigation(bool $authenticated):string {
-  $nav='<a href="/">Utama</a><a href="/public-program.php">Program Awam</a>';
-  if($authenticated)$nav.='<a href="/public-program.php?admin=1">Pengurusan Program Awam</a><a href="/dashboard">Dashboard</a><a href="/profile">Profil saya</a><a href="/training">Training</a><a href="/eforms">e-Forms</a><form method="post" action="/logout"><input type="hidden" name="csrf" value="'.self::e(Support::csrf()).'"><button>Log keluar</button></form>';
-  else $nav.='<a href="/login">Log masuk staf</a>';
-  return $nav;
+ private static function adminAllowed(\PDO $p,int $u,?int $id):bool {
+  if($id!==null){$program=Service::program($p,$id);return Service::can($p,$u,(int)$program['organisation_id'],'participants.view',$id);}
+  foreach(Service::q($p,'SELECT id,organisation_id FROM public_programs')->fetchAll() as $program)if(Service::can($p,$u,(int)$program['organisation_id'],'participants.view',(int)$program['id']))return true;
+  foreach(Service::q($p,'SELECT id FROM organisations WHERE is_active=1')->fetchAll() as $organisation)if(Service::can($p,$u,(int)$organisation['id'],'manage'))return true;
+  return false;
  }
  static function admin(\PDO $p,int $u,?int $id,string $origin):string {
   $r=$id?Service::program($p,$id):null;$orgs=[];$visible=[];

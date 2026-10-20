@@ -1,0 +1,8 @@
+display_errors = Off
+display_startup_errors = Off
+log_errors = On
+error_reporting = E_ALL
+expose_php = Off
+session.cookie_httponly = On
+session.cookie_secure = On
+session.cookie_samesite = Lax

@@ -1,0 +1,37 @@
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+
+RewriteEngine On
+RewriteBase /
+
+# Canonical HTTPS host for the production subdomain (no /epejabat prefix).
+RewriteCond %{HTTPS} !=on [OR]
+RewriteCond %{HTTP_HOST} !^pkdkb\.epejabat\.net$ [NC]
+RewriteRule ^ https://pkdkb.epejabat.net%{REQUEST_URI} [R=308,L]
+
+# Public static assets may be served directly.
+RewriteRule ^assets/ - [L]
+
+# Private application source, configuration and deployment files.
+RewriteRule ^(?:app|config|database|deployment|storage|bin|backup|backups|log|logs|docs|tests)(?:/|$) - [F,L,NC]
+RewriteRule (^|/)\. - [F,L]
+
+<FilesMatch "(?i)(?:^bootstrap\.php$|\.htaccess\.production$|\.env(?:\..*)?$|\.(?:ini|log|sql|key|pem|zip|json|md|txt|bak|yml|yaml)$)">
+    Require all denied
+</FilesMatch>
+
+RewriteRule ^(?:install|upgrade)/?$ index.php [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L,QSA]
+
+<IfModule mod_headers.c>
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-ancestors 'none'; form-action 'self'; base-uri 'none'"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "no-referrer"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+AddType text/javascript mjs

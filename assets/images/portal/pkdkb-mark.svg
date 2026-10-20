@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="title desc">
+  <title id="title">Logo PKD Kota Bharu</title>
+  <desc id="desc">Monogram PKD dengan simbol kesihatan</desc>
+  <defs>
+    <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fff7d6"/>
+      <stop offset="1" stop-color="#f0c455"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#shield)" stroke="#c99a2e" stroke-width="3" d="M48 5 83 18v27c0 22-13 37-35 46C26 82 13 67 13 45V18L48 5Z"/>
+  <circle cx="48" cy="43" r="25" fill="#123d70"/>
+  <path fill="#fff" d="M43 25h10v13h13v10H53v13H43V48H30V38h13z"/>
+  <path fill="none" stroke="#dfb54d" stroke-width="4" stroke-linecap="round" d="M29 69h38"/>
+</svg>

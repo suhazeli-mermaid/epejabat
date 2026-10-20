@@ -3,11 +3,30 @@ declare(strict_types=1);
 namespace EPejabat\Core;
 final class Support {
     public static function escape(mixed $value): string { return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
+    public static function basePath(): string {
+        $base = $GLOBALS['app_base_path'] ?? '';
+        return is_string($base) ? $base : '';
+    }
+    public static function url(string $path): string {
+        if ($path === '' || $path[0] !== '/' || str_starts_with($path, '//')) return $path;
+        $base = self::basePath();
+        if ($base === '' || $path === $base || str_starts_with($path, $base . '/')
+            || str_starts_with($path, $base . '?') || str_starts_with($path, $base . '#')) return $path;
+        return $base . ($path === '/' ? '/' : $path);
+    }
+    public static function withBasePath(string $html): string {
+        if (self::basePath() === '') return $html;
+        return preg_replace_callback(
+            '/\b(href|src|action)=(["\'])(\/(?!\/)[^"\']*)\2/i',
+            static fn(array $match): string => $match[1] . '=' . $match[2] . self::url($match[3]) . $match[2],
+            $html
+        ) ?? $html;
+    }
     public static function csrf(): string { return $_SESSION['csrf'] ??= bin2hex(random_bytes(32)); }
     public static function checkCsrf(): void {
         if (!is_string($_POST['csrf'] ?? null) || !hash_equals(self::csrf(), $_POST['csrf'])) { http_response_code(403); throw new \RuntimeException('Permintaan tidak sah. Muat semula halaman.'); }
     }
-    public static function redirect(string $path): never { header('Location: '.$path, true, 303); exit; }
+    public static function redirect(string $path): never { header('Location: '.self::url($path), true, 303); exit; }
     public static function post(string $key, int $max=255): string {
         $v=$_POST[$key] ?? ''; if (!is_string($v) || mb_strlen($v)>$max) throw new \InvalidArgumentException('Input tidak sah.'); return trim($v);
     }

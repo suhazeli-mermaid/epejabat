@@ -3,9 +3,14 @@ declare(strict_types=1);
 use EPejabat\Core\{Support,Database,Auth,Installer,Upgrade,Web};
 require __DIR__.'/bootstrap.php';
 $path=rtrim((string)parse_url($_SERVER['REQUEST_URI']??'/',PHP_URL_PATH),'/')?:'/';
+$basePath = $isLocal ? Support::basePath() : '';
+if ($basePath !== '' && ($path === $basePath || str_starts_with($path, $basePath . '/'))) {
+    $path = substr($path, strlen($basePath)) ?: '/';
+}
 if($path==='/install')(new Installer($config,$setup,$https,$isLocal))->handle();
 if(!$config)Support::layout('Selamat datang','<p>Foundation belum dipasang.</p><a class="button" href="/install">Buka Installation Wizard</a>');
 $pdo=Database::connect($config['db']);
+$GLOBALS['pdo']=$pdo;
 $status=Database::query($pdo,"SELECT setting_value FROM system_settings WHERE setting_key='installation_status'")->fetchColumn();
 if($status!=='complete'){http_response_code(503);Support::layout('Pemasangan belum selesai','<a href="/install">Sambung pemasangan</a>');}
 $user=Auth::user($pdo);$GLOBALS['ui_user']=$user;$GLOBALS['ui_versions']=\EPejabat\Core\Versions::read($pdo);

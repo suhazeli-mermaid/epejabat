@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 namespace EPejabat\Modules\PublicPrograms;
-use EPejabat\Core\{Core,Database,Crypto,Authorization,Audit};
+use EPejabat\Core\{AccessDenied,Core,Database,Crypto,Authorization,Audit};
 use EPejabat\Modules\EForms\Schema;
 final class Service {
  public static function q(\PDO $p,string $s,array $a=[]):\PDOStatement{return Database::query($p,$s,$a);}
@@ -41,7 +41,7 @@ final class Service {
   });
  }
  public static function permit(\PDO $p,int $u,int $o,string $action='manage',?int $program=null):void {
-  if(!self::can($p,$u,$o,$action,$program))throw new \RuntimeException('Akses ditolak.');
+  if(!self::can($p,$u,$o,$action,$program))throw new AccessDenied('Akses ditolak.');
  }
  public static function program(\PDO $p,int $id,bool $lock=false):array {
   $r=self::q($p,'SELECT * FROM public_programs WHERE id=?'.($lock?' FOR UPDATE':''),[$id])->fetch();if(!$r)throw new \RuntimeException('Program tidak tersedia.');return $r;

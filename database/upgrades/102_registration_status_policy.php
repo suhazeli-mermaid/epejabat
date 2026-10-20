@@ -109,8 +109,9 @@ PHASE1D_METADATA;
     foreach($alterations as $a){if(!$db::query($pdo,'SELECT 1 FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?',[$a[1]])->fetchColumn())throw new RuntimeException('Missing Phase1D alteration target: '.$a[1]);preg_match_all('/\bADD\s+(?:COLUMN\s+)?([a-z_]+)\s+(?:BIGINT|SMALLINT|TINYINT|VARCHAR|DATETIME|INT|TEXT|LONGTEXT|CHAR)\b/i',$a[2],$cols);foreach($cols[1] as $column)if($db::query($pdo,'SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=? AND COLUMN_NAME=?',[$a[1],$column])->fetchColumn())throw new RuntimeException('Untracked Phase1D column: '.$a[1].'.'.$column);}
 
     $allowed=['PENDING_EMAIL_VERIFICATION','PENDING_VERIFICATION','APPROVED','REJECTED','REQUEST_CORRECTION'];
-    $rows=$db::query($pdo,"SELECT tc.CONSTRAINT_NAME,cc.CHECK_CLAUSE FROM information_schema.TABLE_CONSTRAINTS tc JOIN information_schema.CHECK_CONSTRAINTS cc ON cc.CONSTRAINT_SCHEMA=tc.CONSTRAINT_SCHEMA AND cc.CONSTRAINT_NAME=tc.CONSTRAINT_NAME WHERE tc.CONSTRAINT_SCHEMA=DATABASE() AND tc.TABLE_NAME='registration_requests' AND tc.CONSTRAINT_TYPE='CHECK'")->fetchAll();
-    $parts=[];$maria=str_contains((string)$pdo->query('SELECT VERSION()')->fetchColumn(),'MariaDB');
+    $maria=str_contains((string)$pdo->query('SELECT VERSION()')->fetchColumn(),'MariaDB');
+    $rows=$db::query($pdo,"SELECT tc.CONSTRAINT_NAME,cc.CHECK_CLAUSE FROM information_schema.TABLE_CONSTRAINTS tc JOIN information_schema.CHECK_CONSTRAINTS cc ON cc.CONSTRAINT_SCHEMA=tc.CONSTRAINT_SCHEMA AND cc.CONSTRAINT_NAME=tc.CONSTRAINT_NAME ".($maria?"AND cc.TABLE_NAME=tc.TABLE_NAME ":"")."WHERE tc.CONSTRAINT_SCHEMA=DATABASE() AND tc.TABLE_NAME='registration_requests' AND tc.CONSTRAINT_TYPE='CHECK'")->fetchAll();
+    $parts=[];
     foreach($rows as $row){
         $clause=str_replace(['`',"\\'"],['',"'"],$row['CHECK_CLAUSE']);
         if(!preg_match('/\bstatus\b/i',$clause))continue;

@@ -1,22 +1,27 @@
-DirectorySlash Off
 Options -Indexes -MultiViews
 DirectoryIndex index.php
+
 RewriteEngine On
-RewriteRule ^(?:install|upgrade)/?$ index.php [L]
+RewriteBase /epejabat/
+
+# Benarkan akses terus ke folder assets tanpa sebarang sekatan supaya CSS/JS dapat dimuatkan
+RewriteRule ^assets/ - [L]
+
+# Sekat akses ke folder sensitif
 RewriteRule ^(?:app|config|database|storage|bin|backup|backups|log|logs|docs|tests)(?:/|$) - [F,L,NC]
-RewriteRule ^assets/fonts(?:/|$) - [F,L,NC]
 RewriteRule (^|/)\. - [F,L]
+
+# Sekat akses terus ke fail sensitif
 <FilesMatch "(?i)(?:^bootstrap\.php$|\.(?:env|ini|log|sql|key|pem|zip|json|md|txt|bak|yml|yaml)$)">
-Require all denied
+    Require all denied
 </FilesMatch>
+
+# Semak laluan borang/laman utama
+RewriteRule ^(?:install|upgrade)/?$ index.php [L]
+
+# Front Controller Routing
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [L]
-AddType text/javascript mjs
+RewriteRule ^(.*)$ index.php [L,QSA]
 
-# php -- BEGIN cPanel-generated handler, do not edit
-# Set the “ea-php82” package as the default “PHP” programming language.
-<IfModule mime_module>
-  AddHandler application/x-httpd-ea-php82 .php .php8 .phtml
-</IfModule>
-# php -- END cPanel-generated handler, do not edit
+AddType text/javascript mjs

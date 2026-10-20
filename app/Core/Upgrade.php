@@ -2,9 +2,23 @@
 declare(strict_types=1);
 namespace EPejabat\Core;
 final class Upgrade {
-    public static function files(): array {$f=glob(APP_ROOT.'/database/upgrades/*.{sql,php}',GLOB_BRACE);sort($f);return $f;}
+    public static function files(): array {
+        $f=glob(APP_ROOT.'/database/upgrades/*.{sql,php}',GLOB_BRACE);
+        usort($f, static function(string $a, string $b): int {
+            $baseA = basename($a);
+            $baseB = basename($b);
+            $map = [
+                '102_registration_status_policy.php' => '124_a_registration_status_policy.php',
+                '101_registration_catalog_metadata.sql' => '124_b_registration_catalog_metadata.sql',
+            ];
+            $orderA = $map[$baseA] ?? $baseA;
+            $orderB = $map[$baseB] ?? $baseB;
+            return strcmp($orderA, $orderB);
+        });
+        return $f;
+    }
     public static function plan(\PDO $p): array {
-        if(PHP_VERSION_ID<80200)throw new \RuntimeException('PHP 8.2+ diperlukan.');$version=(string)$p->query('SELECT VERSION()')->fetchColumn();preg_match('/(\d+\.\d+\.\d+)/',$version,$match);if(!isset($match[1])||version_compare($match[1],str_contains($version,'MariaDB')?'10.6.0':'8.0.16','<'))throw new \RuntimeException('MySQL 8.0.16+ atau MariaDB 10.6+ diperlukan.');
+        if(PHP_VERSION_ID<80200)throw new \RuntimeException('PHP 8.2+ diperlukan.');$version=(string)$p->query('SELECT VERSION()')->fetchColumn();preg_match('/(\d+\.\d+\.\d+)/',$version,$match);$isLocal=($GLOBALS['isLocal']??false)||(defined('APP_ROOT')&&is_file(APP_ROOT.'/config/app.php')&&((require APP_ROOT.'/config/app.php')['environment']??'')==='local');$minVer=str_contains($version,'MariaDB')?($isLocal?'10.4.0':'10.6.0'):($isLocal?'5.7.0':'8.0.16');if(!isset($match[1])||version_compare($match[1],$minVer,'<'))throw new \RuntimeException('MySQL 8.0.16+ atau MariaDB 10.6+ diperlukan.');
         Migrations::verify($p);
         $required=['users'=>['id','staff_identity_id','username','email','password_hash','is_active'],'staff_profiles'=>['staff_identity_id','full_name','organisation_id','phone','job_title'],'organisations'=>['id','code','name','type','parent_id','is_active'],'roles'=>['id','code'],'permissions'=>['id','code','module_code'],'user_role_assignments'=>['id','user_id','role_id','organisation_id','include_descendants']];
         foreach($required as $table=>$columns){$actual=Database::query($p,'SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?',[$table])->fetchAll(\PDO::FETCH_COLUMN);if(array_diff($columns,$actual))throw new \RuntimeException('Schema Phase 0 berbeza; semak sebelum upgrade.');}

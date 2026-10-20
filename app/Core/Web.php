@@ -13,8 +13,7 @@ final class Web {
     private function orgs(string $perm='core.staff.manage',bool $public=false):array {if($public)return $this->p->query('SELECT id,name FROM organisations WHERE is_active=1 ORDER BY name')->fetchAll();[$s,$a]=Authorization::scope($this->p,$this->actor(),$perm,'o.id');return Database::query($this->p,'SELECT o.id,o.name FROM organisations o WHERE o.is_active=1 AND '.$s.' ORDER BY o.name',$a)->fetchAll();}
     private function table(array $rows,array $columns,?callable $action=null):string {$h='<div class="table-wrap"><table><thead><tr>';foreach($columns as $label)$h.='<th>'.self::e($label).'</th>';if($action)$h.='<th>Tindakan</th>';$h.='</tr></thead><tbody>';foreach($rows as $r){$h.='<tr>';foreach($columns as $key=>$label)$h.='<td>'.self::e($r[$key]??'').'</td>';if($action)$h.='<td>'.$action($r).'</td>';$h.='</tr>';}if(!$rows)$h.='<tr><td colspan="'.(count($columns)+($action?1:0)).'">Tiada rekod.</td></tr>';return $h.'</tbody></table></div>';}
     private function render(string $title,string $body,string $message=''):never {
-        $nav='<a href="/">Utama</a>';if($this->user){$nav.='<a href="/dashboard">Dashboard</a><a href="/profile">Profil saya</a><a href="/my-organisation">Organisasi saya</a><a href="/notifications">Notifikasi</a><a href="/security">Keselamatan akaun</a>';foreach(['/staff'=>['core.staff.view','Direktori staf'],'/registry'=>['core.staff.manage','Registry staf'],'/registration-admin'=>['core.registrations.review','Staff Administration'],'/registrations'=>['core.registrations.review','Permohonan'],'/organisations'=>['core.organisations.manage','Organisasi'],'/master-data'=>['core.master.manage','Master data'],'/roles'=>['core.roles.manage','Role & akses'],'/documents'=>['core.documents.view','Dokumen'],'/audit'=>['core.audit.view','Audit'],'/settings'=>['core.settings.manage','Konfigurasi'],'/modules'=>['core.modules.manage','Modul'],'/upgrade'=>['core.migrations.manage','Upgrade']] as $url=>$spec)if($this->can($spec[0]))$nav.='<a href="'.$url.'">'.$spec[1].'</a>';if(Authorization::super($this->p,(int)$this->user['id'])||$this->can('training.dashboard.view'))$nav.='<a href="/training">Latihan &amp; CPD</a><a href="/training/history">Sejarah latihan</a>'; if(Authorization::super($this->p,(int)$this->user['id'])||$this->can('eforms.submissions.create')||$this->can('eforms.templates.manage')||$this->can('eforms.submissions.review'))$nav.='<a href="/eforms">e-Forms</a>';$nav.=self::form('logout','','Log keluar');}else{$nav.='<a href="/login">Log masuk</a><a href="/claim">Aktifkan akaun</a><a href="/register">Mohon pendaftaran</a>';}
-        Ui::layout($title,($message?'<p class="notice" role="status">'.self::e($message).'</p>':'').$body,$nav);
+        Ui::layout($title,($message?'<p class="notice" role="status">'.self::e($message).'</p>':'').$body);
     }
     private static function passwordInput(string $key):string {$v=$_POST[$key]??'';if(!is_string($v)||strlen($v)>72||str_contains($v,"\0"))throw new \InvalidArgumentException('Input kata laluan tidak sah.');return $v;}
     private static function postId(string $k,bool $nullable=false):?int {return Core::id($_POST[$k]??null,$nullable);}
@@ -23,12 +22,42 @@ final class Web {
         if($path==='/eforms'){foreach(['Schema','Service','Migrations','Web'] as $file)require_once APP_ROOT.'/app/Modules/EForms/'.$file.'.php';\EPejabat\Modules\EForms\Web::handle($this->p,$this->user);}
         if($path==='/activate'&&isset($_GET['token'])){try{$t=Core::text($_GET['token'],64);Accounts::token($this->p,$t);$_SESSION['account_token']=$t;Support::redirect('/activate');}catch(\RuntimeException|\InvalidArgumentException $e){unset($_SESSION['account_token']);http_response_code(400);$this->render('Jemputan tidak sah','<p>Pautan tidak sah, telah digunakan atau tamat tempoh. Minta jemputan baharu daripada Admin atau <a href="/claim">mohon semula</a>. Tiada password atau akaun ditukar.</p>');}}
         $message='';if($_SERVER['REQUEST_METHOD']==='POST'){Support::checkCsrf();try{$message=$this->action(Support::post('action',40));}catch(\PDOException $e){$message='Permintaan tidak dapat diproses. Rujukan: '.Support::log($e);}catch(\RuntimeException|\InvalidArgumentException $e){$message=$e->getMessage();}}
-        try{$body=match($path){'/','/index.php'=>$this->home(),'/dashboard'=>$this->dashboard(),'/claim'=>$this->claim(),'/register'=>$this->registration(),'/forgot-password'=>$this->forgot(),'/activate'=>$this->activation(),'/profile'=>$this->profile(),'/security'=>$this->security(),'/my-organisation'=>$this->myOrganisation(),'/staff'=>$this->directory(),'/registry'=>$this->registry(),'/registrations'=>$this->reviews(),'/organisations'=>$this->organisations(),'/master-data'=>$this->master(),'/roles'=>$this->roles(),'/notifications'=>$this->notifications(),'/settings'=>$this->settings(),'/modules'=>$this->modules(),'/documents'=>$this->documents(),'/download'=>$this->download(),'/audit'=>$this->audit(),default=>$this->missing()};}catch(\RuntimeException|\InvalidArgumentException $e){if(http_response_code()<400)http_response_code(400);$body='<p class="error">'.self::e($e instanceof \PDOException?'Permintaan tidak tersedia.':$e->getMessage()).'</p>';}
-        $titles=['/dashboard'=>'Dashboard','/claim'=>'Aktifkan akaun staf','/register'=>'Permohonan pendaftaran','/forgot-password'=>'Lupa kata laluan','/activate'=>'Cipta kata laluan / pengesahan pautan','/profile'=>'Dashboard Profil Staf','/security'=>'Keselamatan akaun','/my-organisation'=>'Organisasi saya','/staff'=>'Direktori staf','/registry'=>'Pre-Verified Staff Registry','/registrations'=>'Semakan pendaftaran','/organisations'=>'Pengurusan organisasi','/master-data'=>'Shared Master Data','/roles'=>'Role & Permission','/notifications'=>'Pusat notifikasi','/settings'=>'Konfigurasi sistem','/modules'=>'Module Registry','/documents'=>'Dokumen','/audit'=>'Audit'];$this->render($titles[$path]??'epejabat.net',$body,$message);
+        try {
+            $body=match($path){
+                '/','/index.php'=>$this->home(),
+                '/dashboard'=>$this->dashboard(),
+                '/admin/portal-settings'=>$this->portalSettings(),
+                '/claim'=>$this->claim(),
+                '/register'=>$this->registration(),
+                '/forgot-password'=>$this->forgot(),
+                '/activate'=>$this->activation(),
+                '/profile'=>$this->profile(),
+                '/security'=>$this->security(),
+                '/my-organisation'=>$this->myOrganisation(),
+                '/staff'=>$this->directory(),
+                '/registry'=>$this->registry(),
+                '/registrations'=>$this->reviews(),
+                '/organisations'=>$this->organisations(),
+                '/master-data'=>$this->master(),
+                '/roles'=>$this->roles(),
+                '/notifications'=>$this->notifications(),
+                '/settings'=>$this->settings(),
+                '/modules'=>$this->modules(),
+                '/documents'=>$this->documents(),
+                '/download'=>$this->download(),
+                '/audit'=>$this->audit(),
+                default=>$this->missing()
+            };
+        } catch(\RuntimeException|\InvalidArgumentException $e) {
+            if(http_response_code()<400)http_response_code(400);
+            $body='<p class="error">'.self::e($e instanceof \PDOException?'Permintaan tidak tersedia.':$e->getMessage()).'</p>';
+        }
+        $titles=['/dashboard'=>'Dashboard','/admin/portal-settings'=>'Tetapan Portal Utama','/claim'=>'Aktifkan akaun staf','/register'=>'Permohonan pendaftaran','/forgot-password'=>'Lupa kata laluan','/activate'=>'Cipta kata laluan / pengesahan pautan','/profile'=>'Dashboard Profil Staf','/security'=>'Keselamatan akaun','/my-organisation'=>'Organisasi saya','/staff'=>'Direktori staf','/registry'=>'Pre-Verified Staff Registry','/registrations'=>'Semakan pendaftaran','/organisations'=>'Pengurusan organisasi','/master-data'=>'Shared Master Data','/roles'=>'Role & Permission','/notifications'=>'Pusat notifikasi','/settings'=>'Konfigurasi sistem','/modules'=>'Module Registry','/documents'=>'Dokumen','/audit'=>'Audit'];$this->render($titles[$path]??'epejabat.net',$body,$message);
     }
     private function action(string $a):string {
         $p=$this->p;$public=['claim','register','reset_request','activate'];$actor=in_array($a,$public,true)?0:$this->actor();
         switch($a){
+            case 'portal_content_save':PortalSettings::save($p,$actor,$_POST,$_FILES['image']??[]);return 'Kandungan portal berjaya dikemas kini.';
             case 'portal_branding':if(!Authorization::super($p,$actor))throw new \RuntimeException('Super Admin diperlukan.');$name=Core::text(Support::post('portal_name',120),120);if($name==='')throw new \InvalidArgumentException('Nama portal diperlukan.');Core::tx($p,function()use($p,$actor,$name){$old=Database::query($p,"SELECT setting_value FROM system_settings WHERE setting_key='portal_name'")->fetchColumn();Versions::set($p,'portal_name',$name);Audit::record($p,'portal.branding_changed',$actor,null,'portal_name','core',null,['name'=>$old?:null],['name'=>$name]);});return 'Identiti portal dikemas kini.';
             case 'logout':Auth::logout($p);Support::redirect('/login');
             case 'claim':return Accounts::claim($p,Support::post('email',190),Support::post('full_name',190));
@@ -73,6 +102,7 @@ final class Web {
         }
     }
     private function home():string {return Ui::home($this->p,$this->user);}
+    private function portalSettings():string {return PortalSettings::render($this->p,$this->actor());}
     private function dashboard():string {
         $u=$this->actor();$h='<section class="card"><h2>Dashboard Profil Staf</h2><p>Maklumat tambahan adalah pilihan.</p><a class="button" href="/profile">Buka dashboard profil saya</a></section><section class="welcome-panel"><div><p class="eyebrow">DASHBOARD ANDA</p><h2>Selamat datang, '.self::e($this->user['full_name']).'.</h2><p>Ringkasan sebenar berdasarkan akses dan organisasi anda.</p></div><a class="button secondary" href="/profile">Lihat profil</a></section>';$h.='<div class="stats">';$unread=(int)Database::query($this->p,'SELECT COUNT(*) FROM notifications WHERE user_id=? AND read_at IS NULL',[$u])->fetchColumn();$metrics=['Notifikasi belum dibaca'=>$unread];
         if($this->can('core.staff.view')){[$s,$a]=Authorization::scope($this->p,$u,'core.staff.view','p.organisation_id');$metrics['Staf dalam scope']=(int)Database::query($this->p,'SELECT COUNT(*) FROM staff_profiles p WHERE '.$s,$a)->fetchColumn();$metrics['Akaun aktif']=(int)Database::query($this->p,'SELECT COUNT(*) FROM users u JOIN staff_profiles p ON p.staff_identity_id=u.staff_identity_id WHERE u.is_active=1 AND '.$s,$a)->fetchColumn();$metrics['Akaun tidak aktif']=(int)Database::query($this->p,'SELECT COUNT(*) FROM users u JOIN staff_profiles p ON p.staff_identity_id=u.staff_identity_id WHERE u.is_active=0 AND '.$s,$a)->fetchColumn();$metrics['Jumlah akaun']=$metrics['Akaun aktif']+$metrics['Akaun tidak aktif'];$metrics['Profil belum lengkap']=(int)Database::query($this->p,"SELECT COUNT(*) FROM staff_profiles p WHERE (p.profession_id IS NULL OR p.position_id IS NULL OR p.grade_id IS NULL OR p.phone IS NULL OR p.phone='') AND ".$s,$a)->fetchColumn();}

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="title desc">
+  <title id="title">Aktiviti portal PKD Kota Bharu</title>
+  <desc id="desc">Ilustrasi abstrak aktiviti dan program kesihatan</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#eaf4ff"/>
+      <stop offset="1" stop-color="#d7f0ec"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#15528e"/>
+      <stop offset="1" stop-color="#1a8c8f"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <circle cx="670" cy="85" r="170" fill="#e4b94f" opacity=".32"/>
+  <rect x="130" y="105" width="540" height="390" rx="46" fill="#fff" stroke="#b7d1df" stroke-width="4"/>
+  <rect x="175" y="155" width="450" height="290" rx="28" fill="url(#card)"/>
+  <circle cx="400" cy="300" r="96" fill="#fff" opacity=".14"/>
+  <path fill="#fff" d="M378 213h44v65h65v44h-65v65h-44v-65h-65v-44h65z"/>
+  <path d="M95 515h610" stroke="#d0a437" stroke-width="10" stroke-linecap="round"/>
+</svg>

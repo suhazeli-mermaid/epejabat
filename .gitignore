@@ -1,9 +1,17 @@
 /config/app.php
 /config/smtp.php
 /config/core.key
+/config/setup.php
+/config/deployment.php
+/.env
+/.env.*
+!/.env.example
+!/.env.production.example
 /storage/*
 !/storage/.htaccess
 !/storage/access-probe.html
+/storage/sessions/
+/storage/backups/
 /backup/*
 !/backup/.htaccess
 !/backup/access-probe.html
@@ -12,3 +20,5 @@
 !/log/access-probe.html
 /error_log
 /vendor/
+/deployment/packages/*
+!/deployment/packages/.gitkeep

@@ -108,7 +108,7 @@ final class Installer {
                         $db=['host'=>Support::post('db_host'),'name'=>Support::post('db_name'),'user'=>Support::post('db_user'),'password'=>$password,'port'=>(int)$port];
                         $pdo=Database::connect($db);$version=(string)$pdo->query('SELECT VERSION()')->fetchColumn();
                         $maria=str_contains($version,'MariaDB');preg_match('/(\d+\.\d+\.\d+)/',$version,$match);
-                        if(!isset($match[1]) || version_compare($match[1],$maria?'10.6.0':'8.0.16','<')) throw new \RuntimeException('Perlu MySQL 8.0.16+ atau MariaDB 10.6+.');
+                        $isLoc=($this->local??false)||($GLOBALS['isLocal']??false);$minVer=$maria?($isLoc?'10.4.0':'10.6.0'):($isLoc?'5.7.0':'8.0.16');if(!isset($match[1]) || version_compare($match[1],$minVer,'<')) throw new \RuntimeException('Perlu MySQL 8.0.16+ atau MariaDB 10.6+.');
                         if($pdo->query('SHOW TABLES')->fetchAll()) throw new \RuntimeException('Database mesti kosong. Pilih database baharu.');
                         $_SESSION['install_db']=$db;
                     }elseif($action==='migrate' && $step===3) {$this->migrate();}

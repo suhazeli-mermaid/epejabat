@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 namespace EPejabat\Modules\EForms;
-use EPejabat\Core\{Core,Support,Database,Authorization,InstallationKey};
+use EPejabat\Core\{AccessDenied,Core,Support,Database,Authorization,InstallationKey};
 final class VisualWeb {
  private static function e($s):string{return Support::escape((string)$s);}
  private static function json(array $r):never {header('Content-Type: application/json');header('Cache-Control: no-store');echo json_encode($r,JSON_THROW_ON_ERROR|JSON_HEX_TAG);exit;}
@@ -22,7 +22,7 @@ final class VisualWeb {
  private static function data(array $d):string{return '<script type="application/json" id="visual-data">'.json_encode($d,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_THROW_ON_ERROR).'</script>';}
  private static function post(string $action,string $fields,string $button):string{return '<form method="post"><input type="hidden" name="csrf" value="'.Support::csrf().'"><input type="hidden" name="action" value="'.$action.'">'.$fields.'<button>'.$button.'</button></form>';}
  public static function studio(\PDO $p,int $u,?int $id):string {
-  $orgs=[];foreach($p->query('SELECT id,name FROM organisations WHERE is_active=1 ORDER BY name')->fetchAll() as $o){try{Service::permit($p,$u,'templates.manage',(int)$o['id']);$orgs[]=$o;}catch(\RuntimeException $e){}}if(!$orgs)throw new \RuntimeException('Admin Form Builder diperlukan.');
+  $orgs=[];foreach($p->query('SELECT id,name FROM organisations WHERE is_active=1 ORDER BY name')->fetchAll() as $o){try{Service::permit($p,$u,'templates.manage',(int)$o['id']);$orgs[]=$o;}catch(\RuntimeException $e){}}if(!$orgs)throw new AccessDenied('Admin Form Builder diperlukan.');
   $r=$id?Database::query($p,'SELECT t.title,t.status,t.organisation_id,v.* FROM eforms_templates t JOIN eforms_versions v ON v.template_id=t.id WHERE t.id=? ORDER BY v.version DESC LIMIT 1',[$id])->fetch():null;if($id&&!$r)throw new \RuntimeException('Template tidak wujud.');if($r)Service::permit($p,$u,'templates.manage',(int)$r['organisation_id']);
   $binding=$r?Visual::binding($p,(int)$r['id']):null;$source=$binding['source_id']??null;if(!$r&&isset($_GET['source']))$source=Core::id($_GET['source']);$s=$source?Visual::source($p,$u,(int)$source):null;$org=(int)($r['organisation_id']??$s['organisation_id']??$orgs[0]['id']);
   $staff=[];foreach(Database::query($p,'SELECT u.id,s.full_name AS name FROM users u JOIN staff_profiles s ON s.staff_identity_id=u.staff_identity_id WHERE u.is_active=1 ORDER BY s.full_name')->fetchAll() as $a){$scopes=[];foreach($orgs as $o){try{Service::permit($p,(int)$a['id'],'submissions.review',(int)$o['id']);$scopes[]=(int)$o['id'];}catch(\RuntimeException $e){}}if($scopes){$a['orgs']=$scopes;$staff[]=$a;}}

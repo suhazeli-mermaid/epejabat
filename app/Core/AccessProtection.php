@@ -9,7 +9,7 @@ final class AccessProtection {
             || (PHP_SAPI === 'cli' && in_array($parts['host'] ?? '', ['127.0.0.1', 'localhost'], true));
         if (!$parts || !in_array($parts['scheme'] ?? '', $local ? ['http', 'https'] : ['https'], true)
             || !isset($parts['host']) || isset($parts['user']) || isset($parts['pass'])
-            || !empty($parts['path']) || isset($parts['query']) || isset($parts['fragment'])) {
+            || (!$local && !empty($parts['path'])) || isset($parts['query']) || isset($parts['fragment'])) {
             throw new \RuntimeException('Origin probe tidak sah.');
         }
         if (!extension_loaded('curl')) {

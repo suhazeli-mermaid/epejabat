@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 800" role="img" aria-labelledby="title desc">
+  <title id="title">Portal Digital PKD Kota Bharu</title>
+  <desc id="desc">Ilustrasi abstrak perkhidmatan kesihatan digital</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#0c3158"/>
+      <stop offset=".58" stop-color="#1762a7"/>
+      <stop offset="1" stop-color="#12a0a2"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop stop-color="#f6cf67" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#f6cf67" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M64 0H0v64" fill="none" stroke="#fff" stroke-opacity=".08"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="800" fill="url(#bg)"/>
+  <rect width="1600" height="800" fill="url(#grid)"/>
+  <circle cx="1260" cy="180" r="330" fill="url(#glow)"/>
+  <circle cx="1270" cy="410" r="205" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/>
+  <circle cx="1270" cy="410" r="135" fill="#fff" fill-opacity=".08" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
+  <path fill="#fff" d="M1225 270h90v95h95v90h-95v95h-90v-95h-95v-90h95z" opacity=".94"/>
+  <g fill="none" stroke="#f6cf67" stroke-width="8" stroke-linecap="round" opacity=".9">
+    <path d="M90 645h560"/>
+    <path d="M90 680h360" opacity=".55"/>
+  </g>
+  <g fill="#fff" opacity=".14">
+    <circle cx="860" cy="180" r="22"/><circle cx="940" cy="255" r="13"/><circle cx="820" cy="330" r="10"/>
+    <path d="m860 180 80 75-120 75m120-75 130 60" stroke="#fff" stroke-width="3" fill="none"/>
+  </g>
+</svg>

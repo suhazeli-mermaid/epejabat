@@ -1,22 +1,265 @@
 <?php
 declare(strict_types=1);
+
 namespace EPejabat\Core;
-final class Ui {
- public static function portalName():string {
-  $p=$GLOBALS['pdo']??null;
-  if($p instanceof \PDO){$name=Database::query($p,"SELECT setting_value FROM system_settings WHERE setting_key='portal_name'")->fetchColumn();if(is_string($name)&&trim($name)!=='')return $name;}
-  return 'PKD KOTA BHARU DIGITAL PORTAL';
- }
- public static function layout(string $title,string $body,string $nav=''):never {
-  $e=Support::escape($title);$user=$GLOBALS['ui_user']??null;$version=Support::escape($GLOBALS['ui_versions']['app_version']??'1.0.0');
-  if($nav==='')$nav='<a href="/">Utama</a><a href="/training/portal">Program awam</a>'.($user?'<a href="/dashboard">Dashboard</a><a href="/profile">Profil saya</a><a href="/training">Training</a><a href="/training/history">Sejarah latihan</a><a href="/notifications">Notifikasi</a><a href="/security">Keselamatan</a><form action="/logout" method="post"><input type="hidden" name="csrf" value="'.Support::csrf().'"><button>Log keluar</button></form>':'<a href="/login">Log masuk</a><a href="/claim">Aktifkan akaun</a><a href="/register">Pendaftaran staf</a>');
-  clearstatcache(true,APP_ROOT.'/assets/app.css');clearstatcache(true,APP_ROOT.'/assets/app.js');
-  $portal=Support::escape(self::portalName());$cv=substr(hash_file('sha256',APP_ROOT.'/assets/app.css'),0,16);$jv=substr(hash_file('sha256',APP_ROOT.'/assets/app.js'),0,16);$training=Support::escape($GLOBALS['ui_versions']['module_version.training']??'belum dipasang');
-  echo '<!doctype html><html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#123d70"><title>'.$e.' | '.$portal.'</title><link rel="stylesheet" href="/assets/bootstrap.min.css"><link rel="stylesheet" href="/assets/app.css?v='.$cv.'"><script src="/assets/bootstrap.bundle.min.js" defer></script><script src="/assets/jsQR.js" defer></script><script src="/assets/app.js?v='.$jv.'" defer></script></head><body><a class="skip" href="#main">Langkau ke kandungan</a><header class="topbar"><a class="brand" href="/" aria-label="PKD Kota Bharu Digital Portal — halaman utama"><img class="brand-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAF8WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNi4wLWMwMDIgNzkuMTY0NDYwLCAyMDIwLzA1LzEyLTE2OjA0OjE3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMiAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDI0LTA0LTA4VDE2OjM4OjIyKzA4OjAwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDI0LTA0LTA4VDE2OjM4OjIyKzA4OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNC0wNC0wOFQxNjozODoyMiswODowMCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo4MWNmODE3YS01MzA3LTY3NDEtOTlkNi05NWI1ZTI2ZTMxNDUiIHhtcE1NOkRvY3VtZW50SUQ9ImFkb2JlOmRvY2lkOnBob3Rvc2hvcDoyYTE3NTQ2Ni1mM2EzLWM2NGItYjNhYS05YTdkZDViNzBlYWEiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDphYmZlYTczNy1kZjRjLWUyNDktODVjYy0wZWVkM2ZkMTJhMjciIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmFiZmVhNzM3LWRmNGMtZTI0OS04NWNjLTBlZWQzZmQxMmEyNyIgc3RFdnQ6d2hlbj0iMjAyNC0wNC0wOFQxNjozODoyMiswODowMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjIgKFdpbmRvd3MpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDo4MWNmODE3YS01MzA3LTY3NDEtOTlkNi05NWI1ZTI2ZTMxNDUiIHN0RXZ0OndoZW49IjIwMjQtMDQtMDhUMTY6Mzg6MjIrMDg6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMS4yIChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz7bgY46AAAVy0lEQVRoge2Zd5RW5bX/v89z2tvbvNN7YWZoAw5D70gRsItBFBWNWNHojZLYEoOJibFGBU28BG7AihIbCQJGmoReZ2CAKcy8M/NOe3s7/bl/wNXfXTdr/da6vz9cv7X8/nXWedY5Z3/O3s/az96bMMbw/7Po923A/6t+APi+9QPA9y0CAHafF4H6ETg+EMOscBSlPPcdGQF6ZR03e53I5gkaMwoeyPPgsc5BpOwOCJk0lEQChOPAUQpKeTACf1qnHGfCRqluIZRPKAaLShaSpISA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" alt="Jata Persekutuan — Kementerian Kesihatan Malaysia" width="48" height="48"><span class="brand-copy"><strong>'.$portal.'</strong><small>Kementerian Kesihatan Malaysia</small></span></a><span class="header-service">PEJABAT DIGITAL</span><button id="menu-toggle" class="menu-toggle" aria-controls="main-nav" aria-expanded="false" aria-label="Buka navigasi">☰ Menu</button></header><div class="shell"><nav id="main-nav" aria-label="Navigasi utama"><p class="nav-heading">'.($user?'RUANG KERJA':'PORTAL AWAM').'</p>'.$nav.'</nav><main id="main" tabindex="-1"><div class="page-heading"><p class="eyebrow">Pejabat Kesihatan Daerah · Perkhidmatan digital</p><h1>'.$e.'</h1><p class="page-context">'.($user?'Profil, latihan dan perkhidmatan dalam skop akses anda.':'Maklumat dan perkhidmatan warga kesihatan.').'</p></div>'.$body.'</main></div><footer><strong>'.$portal.'</strong><span>Kementerian Kesihatan Malaysia</span><span>Application '.$version.' · Training '.$training.'</span></footer><div id="toast" role="status" aria-live="polite" hidden></div><dialog id="confirm-dialog"><h2>Sahkan tindakan</h2><p>Teruskan perubahan ini?</p><div class="actions"><button type="button" id="confirm-no">Batal</button><button type="button" id="confirm-yes">Teruskan</button></div></dialog></body></html>';exit;
- }
- public static function home(\PDO $p,?array $user):string {
-  $orgs=Database::query($p,"SELECT name FROM organisations WHERE type='pkd' AND is_active=1 ORDER BY name LIMIT 5")->fetchAll(\PDO::FETCH_COLUMN);$body='<section class="hero"><div id="portal-banner" class="carousel slide" aria-label="Maklumat portal"><div class="carousel-inner"><div class="carousel-item active"><p class="badge">'.Support::escape(self::portalName()).'</p><h2>Pejabat digital.<br>Kerja lebih tersusun.</h2><p>Profil staf, latihan, kehadiran dan CPD — dalam satu ruang kerja yang selamat.</p></div><div class="carousel-item"><h2>Latihan yang tersusun</h2><p>Terokai program, daftar dan semak sejarah penyertaan anda.</p></div><div class="carousel-item"><h2>Organisasi yang berhubung</h2><p>'.Support::escape(implode(' · ',$orgs)).'</p></div></div><div class="actions"><button type="button" data-bs-target="#portal-banner" data-bs-slide="prev" aria-label="Banner sebelumnya">←</button><button type="button" data-bs-target="#portal-banner" data-bs-slide="next" aria-label="Banner seterusnya">→</button></div></div><div class="actions"><a class="button" href="'.($user?'/dashboard':'/login').'">'.($user?'Buka dashboard':'Log masuk').'</a><a class="button secondary" href="/claim">Aktifkan akaun</a><a href="/register">Daftar staf</a></div></section><section class="card"><h2>Program & aktiviti</h2><p><a href="/training/portal">Lihat program awam dan pautan pendaftaran</a></p></section>';
-  foreach(Content::publicRows($p,'training') as $r){$body.='<section class="card"><h2>'.Support::escape($r['title']??'Maklumat program').'</h2><p>'.Support::escape($r['body']??'').'</p></section>';}return $body;
- }
- public static function camera():string {return '<section class="card" id="qr-camera"><h2>Imbas QR kehadiran</h2><p>Kamera memerlukan HTTPS dan kebenaran anda. Token boleh dimasukkan secara manual.</p><button type="button" id="camera-start">Buka kamera</button><button type="button" id="camera-stop" hidden>Hentikan kamera</button><video id="camera-video" playsinline muted hidden aria-label="Pratonton kamera QR"></video><canvas id="camera-canvas" hidden></canvas><p id="camera-status" role="status" aria-live="polite"></p></section>';}
+
+final class Ui
+{
+    public static function portalName(): string
+    {
+        $p = $GLOBALS['pdo'] ?? null;
+        if ($p instanceof \PDO) {
+            $name = Database::query($p, "SELECT setting_value FROM system_settings WHERE setting_key='portal_name'")->fetchColumn();
+            if (is_string($name) && trim($name) !== '') {
+                return $name;
+            }
+        }
+        return 'PKD KOTA BHARU DIGITAL PORTAL';
+    }
+
+    public static function navigation(?\PDO $p, ?array $user): string
+    {
+        $public = [['/', 'Utama'], ['/training/portal', 'Portal Awam'], ['/public-program.php', 'Semak Status']];
+        if (!$user) {
+            $public[] = ['/login', 'Log Masuk'];
+        }
+        $html = self::navSection('Akses Awam', 'nav-public', $public);
+        if (!$user) {
+            return $html;
+        }
+
+        $uid = (int) ($user['id'] ?? 0);
+        $super = $p instanceof \PDO && Authorization::super($p, $uid);
+        $allowed = static fn(string $permission): bool => $p instanceof \PDO && Authorization::any($p, $uid, $permission);
+        $staff = [
+            ['/dashboard', $super ? 'Dashboard Pentadbir' : 'Dashboard Staf'],
+            ['/eforms', 'Borang Saya / e-Forms'],
+            ['/eforms#my-submissions', 'Permohonan Saya'],
+            ['/profile', 'Profil'],
+        ];
+        $canReview = $super || $allowed('eforms.submissions.review') || $allowed('eforms.submissions.manage');
+        $canTemplates = $super || $allowed('eforms.templates.manage');
+        $module = [];
+        if (!$super && $canReview) {
+            $module[] = ['/eforms#approval-queue', 'Semakan & Kelulusan (Approval Queue)'];
+            $module[] = ['/eforms#submission-list', 'Senarai Submission'];
+        }
+        if (!$super && ($canReview || $canTemplates)) {
+            $module[] = ['/eforms#form-status', 'Status Borang'];
+        }
+        if (!$super && $canTemplates) {
+            $module[] = ['/eforms?studio=new', 'Template Pentadbiran (Form Builder)'];
+        }
+        $html .= self::navSection('Ruang Kerja Staf', 'nav-staff', $staff, $module, 'Pengurusan e-Forms');
+
+        $system = [];
+        if ($super) {
+            $system[] = ['/eforms?studio=new', 'Template Pentadbiran (Form Builder)'];
+            $system[] = ['/eforms#approval-queue', 'Submission Tracking & Approval Queue'];
+        }
+        $adminLinks = [
+            [['core.portal.manage'], '/admin/portal-settings', 'Kandungan Portal Utama'],
+            [['core.staff.view', 'core.staff.manage'], '/staff', 'Pengurusan Akaun'],
+            [['core.registrations.review'], '/registration-admin', 'Kelulusan Pendaftaran'],
+            [['core.roles.manage', 'core.users.manage'], '/roles', 'Pengurusan Pengguna (Roles & Scope)'],
+            [['core.organisations.manage'], '/organisations', 'Pengurusan Organisasi'],
+            [['core.master.manage'], '/master-data', 'Data Induk'],
+            [['core.documents.manage'], '/documents', 'Pengurusan Dokumen'],
+            [['core.audit.view'], '/audit', 'Audit Trail'],
+            [['core.settings.manage'], '/settings', 'Tetapan Sistem'],
+            [['core.modules.manage'], '/modules', 'Pengurusan Modul'],
+        ];
+        foreach ($adminLinks as [$permissions, $url, $label]) {
+            $show = $super;
+            foreach ($permissions as $permission) {
+                if ($allowed($permission)) {
+                    $show = true;
+                    break;
+                }
+            }
+            if ($show) {
+                $system[] = [$url, $label];
+            }
+        }
+        if ($super || $allowed('core.migrations.manage')) {
+            $system[] = ['/upgrade', 'Sistem / Migrasi'];
+        }
+        if ($system) {
+            $html .= self::navSection('Pentadbiran Sistem', 'nav-system', $system);
+        }
+        return $html.'<form class="nav-logout" action="/logout" method="post"><input type="hidden" name="csrf" value="'.Support::csrf().'"><button>Log Keluar</button></form>';
+    }
+
+    private static function navSection(string $title, string $id, array $links, array $secondary = [], string $secondaryTitle = ''): string
+    {
+        $html = '<section class="nav-section" aria-labelledby="'.$id.'"><p class="nav-section-title" id="'.$id.'">'.Support::escape($title).'</p>';
+        foreach ($links as [$url, $label]) {
+            $html .= self::navLink($url, $label);
+        }
+        if ($secondary) {
+            $html .= '<p class="nav-subheading">'.Support::escape($secondaryTitle).'</p>';
+            foreach ($secondary as [$url, $label]) {
+                $html .= self::navLink($url, $label);
+            }
+        }
+        return $html.'</section>';
+    }
+
+    private static function navLink(string $url, string $label): string
+    {
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+        $requestPath = rtrim((string) parse_url($requestUri, PHP_URL_PATH), '/') ?: '/';
+        $base = Support::basePath();
+        if ($base !== '' && ($requestPath === $base || str_starts_with($requestPath, $base.'/'))) {
+            $requestPath = substr($requestPath, strlen($base)) ?: '/';
+        }
+        $target = rtrim((string) parse_url($url, PHP_URL_PATH), '/') ?: '/';
+        $targetQuery = parse_url($url, PHP_URL_QUERY);
+        $requestQuery = parse_url($requestUri, PHP_URL_QUERY);
+        $current = !str_contains($url, '#') && $requestPath === $target
+            && ($targetQuery === null ? $requestQuery === null : $targetQuery === $requestQuery)
+            ? ' aria-current="page"' : '';
+        return '<a href="'.Support::escape($url).'"'.$current.'>'.Support::escape($label).'</a>';
+    }
+
+    private static function requestPath(): string
+    {
+        $path = rtrim((string) parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/') ?: '/';
+        $base = Support::basePath();
+        if ($base !== '' && ($path === $base || str_starts_with($path, $base.'/'))) {
+            return substr($path, strlen($base)) ?: '/';
+        }
+        return $path;
+    }
+
+    public static function layout(string $title, string $body, string $nav = ''): never
+    {
+        $e = Support::escape($title);
+        $user = $GLOBALS['ui_user'] ?? null;
+        $pdo = ($GLOBALS['pdo'] ?? null) instanceof \PDO ? $GLOBALS['pdo'] : null;
+        $version = Support::escape($GLOBALS['ui_versions']['app_version'] ?? '1.0.0');
+        $nav = self::navigation($pdo, $user);
+        $path = self::requestPath();
+        $isHome = in_array($path, ['/', '/index.php'], true);
+        clearstatcache(true, APP_ROOT.'/assets/app.css');
+        clearstatcache(true, APP_ROOT.'/assets/app.js');
+        $portal = Support::escape(self::portalName());
+        $cv = substr(hash_file('sha256', APP_ROOT.'/assets/app.css'), 0, 16);
+        $jv = substr(hash_file('sha256', APP_ROOT.'/assets/app.js'), 0, 16);
+        $training = Support::escape($GLOBALS['ui_versions']['module_version.training'] ?? 'belum dipasang');
+
+        $account = $user
+            ? '<a class="header-action" href="/dashboard">Akaun</a><form class="header-logout" action="/logout" method="post"><input type="hidden" name="csrf" value="'.Support::csrf().'"><button>Log keluar</button></form>'
+            : '<a class="header-action" href="/login">Log masuk</a><a class="header-action is-gold" href="/register">Daftar</a>';
+        $search = $isHome
+            ? '<form class="portal-search" role="search" action="/" method="get"><label class="visually-hidden" for="portal-search-input">Cari perkhidmatan portal</label><span aria-hidden="true">⌕</span><input id="portal-search-input" name="q" type="search" placeholder="Cari aktiviti atau perkhidmatan…" autocomplete="off"></form>'
+            : '<span class="header-service">PEJABAT DIGITAL</span>';
+        $heading = $isHome ? '' : '<div class="page-heading"><p class="eyebrow">Pejabat Kesihatan Daerah · Perkhidmatan digital</p><h1>'.$e.'</h1><p class="page-context">'.($user ? 'Profil, latihan dan perkhidmatan dalam skop akses anda.' : 'Maklumat dan perkhidmatan warga kesihatan.').'</p></div>';
+        $bottomNav = $isHome ? self::bottomNavigation((bool) $user) : '';
+        $bodyClass = $isHome ? 'portal-home-page' : 'app-page';
+
+        ob_start(static fn(string $html): string => Support::withBasePath($html));
+        echo '<!doctype html><html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#123d70"><title>'.$e.' | '.$portal.'</title><link rel="stylesheet" href="/assets/bootstrap.min.css"><link rel="stylesheet" href="/assets/app.css?v='.$cv.'"><script src="/assets/bootstrap.bundle.min.js" defer></script><script src="/assets/jsQR.js" defer></script><script src="/assets/app.js?v='.$jv.'" defer></script></head><body class="'.$bodyClass.'"><a class="skip" href="#main">Langkau ke kandungan</a><header class="topbar"><a class="brand" href="/" aria-label="PKD Kota Bharu Digital Portal — halaman utama"><img class="brand-logo" src="/assets/images/portal/pkdkb-mark.svg" alt="Logo PKD Kota Bharu" width="54" height="54"><span class="brand-copy"><strong>'.$portal.'</strong><small>Kementerian Kesihatan Malaysia</small></span></a>'.$search.'<div class="portal-account-actions">'.$account.'</div><button id="menu-toggle" class="menu-toggle" aria-controls="main-nav" aria-expanded="false" aria-label="Buka navigasi">☰ <span>Menu</span></button></header><div class="shell"><nav id="main-nav" aria-label="Navigasi utama"><p class="nav-heading">'.($user ? 'RUANG KERJA' : 'PORTAL AWAM').'</p>'.$nav.'</nav><main id="main" tabindex="-1">'.$heading.$body.'</main></div><footer><strong>'.$portal.'</strong><span>Kementerian Kesihatan Malaysia</span><span>Application '.$version.' · Training '.$training.'</span></footer>'.$bottomNav.'<div id="toast" role="status" aria-live="polite" hidden></div><dialog id="confirm-dialog"><h2>Sahkan tindakan</h2><p>Teruskan perubahan ini?</p><div class="actions"><button type="button" id="confirm-no">Batal</button><button type="button" id="confirm-yes">Teruskan</button></div></dialog></body></html>';
+        exit;
+    }
+
+    public static function home(\PDO $p, ?array $user): string
+    {
+        $hero = PortalSettings::rows($p, 'HERO')[0];
+        $heroImage = PortalSettings::safeImage((string) $hero['image_path'], '/assets/images/portal/hero-default.svg');
+        $quickLinks = array_values(array_filter(PortalSettings::rows($p, 'QUICK_LINK'), static fn(array $row): bool => (bool) $row['is_active']));
+        $activities = array_values(array_filter(PortalSettings::rows($p, 'ACTIVITY'), static fn(array $row): bool => (bool) $row['is_active']));
+
+        $html = '<section class="portal-quick-links" aria-label="Pautan pantas">';
+        foreach ($quickLinks as $index => $link) {
+            $html .= '<a href="'.Support::escape($link['target_url']).'"'.self::externalAttrs((string) $link['target_url']).'><span>'.sprintf('%02d', $index + 1).'</span>'.Support::escape($link['title']).'</a>';
+        }
+        $html .= '</section><div id="portal-search-status" class="portal-search-status" role="status" aria-live="polite"></div>';
+
+        $html .= '<section class="portal-feature-grid" aria-label="Sorotan portal"><article class="portal-hero"><img src="'.Support::escape($heroImage).'" alt="'.Support::escape($hero['title']).'"><div class="portal-hero-shade"></div><div class="portal-hero-copy"><p class="portal-kicker">PORTAL DIGITAL PKD KOTA BHARU</p><h1>'.Support::escape($hero['title']).'</h1><p>'.Support::escape($hero['caption']).'</p>';
+        if ($hero['target_url'] !== '') {
+            $html .= '<a class="portal-hero-cta" href="'.Support::escape($hero['target_url']).'"'.self::externalAttrs((string) $hero['target_url']).'>Terokai sekarang <span aria-hidden="true">→</span></a>';
+        }
+        $html .= '</div></article>'.self::announcements($p).'</section>';
+
+        $html .= '<section class="portal-activities" aria-labelledby="portal-activities-title"><div class="portal-section-heading"><div><p class="portal-kicker">PILIHAN UNTUK ANDA</p><h2 id="portal-activities-title">Aktiviti & perkhidmatan</h2></div><span>'.count($activities).' pilihan</span></div><div class="portal-activity-grid">';
+        foreach ($activities as $activity) {
+            $image = PortalSettings::safeImage((string) $activity['image_path'], '/assets/images/portal/activity-default.svg');
+            $url = (string) $activity['target_url'];
+            $html .= '<a class="portal-activity-card" data-portal-card href="'.Support::escape($url).'"'.self::externalAttrs($url).'><figure><img src="'.Support::escape($image).'" alt="" loading="lazy"><span class="portal-card-arrow" aria-hidden="true">↗</span></figure><div><p class="portal-card-index">AKTIVITI '.sprintf('%02d', (int) $activity['slot']).'</p><h3>'.Support::escape($activity['title']).'</h3><p>'.Support::escape($activity['caption']).'</p></div></a>';
+        }
+        return $html.'</div></section>';
+    }
+
+    private static function announcements(\PDO $p): string
+    {
+        $items = [];
+        try {
+            foreach (Content::publicRows($p, 'training') as $row) {
+                if (in_array($row['type_key'], ['ANNOUNCEMENT', 'BANNER'], true)) {
+                    $items[] = $row;
+                }
+                if (count($items) === 3) {
+                    break;
+                }
+            }
+        } catch (\Throwable) {
+            $items = [];
+        }
+        if (!$items) {
+            $items = [
+                ['title' => 'Akses sehenti', 'body' => 'Program, borang dan maklumat penting dalam satu portal.', 'cta_url' => '/training/portal'],
+                ['title' => 'Mesra telefon', 'body' => 'Direka mobile-first untuk capaian pantas di mana-mana.', 'cta_url' => ''],
+                ['title' => 'Akses terkawal', 'body' => 'Ruang pentadbiran dilindungi mengikut peranan pengguna.', 'cta_url' => '/login'],
+            ];
+        }
+
+        $html = '<aside class="portal-announcements" aria-labelledby="portal-announcement-title"><div class="portal-announcement-heading"><p class="portal-kicker">TERKINI</p><h2 id="portal-announcement-title">Pengumuman</h2><span class="portal-live-dot">Live</span></div><div class="portal-announcement-list">';
+        foreach ($items as $index => $item) {
+            $title = Support::escape($item['title'] ?? 'Makluman portal');
+            $body = Support::escape($item['body'] ?? '');
+            $url = (string) ($item['cta_url'] ?? '');
+            $content = '<span class="portal-announcement-number">'.sprintf('%02d', $index + 1).'</span><span><strong>'.$title.'</strong><small>'.$body.'</small></span>';
+            $html .= $url !== '' ? '<a href="'.Support::escape($url).'"'.self::externalAttrs($url).'>'.$content.'</a>' : '<div>'.$content.'</div>';
+        }
+        return $html.'</div><a class="portal-all-programmes" href="/training/portal">Lihat semua maklumat <span aria-hidden="true">→</span></a></aside>';
+    }
+
+    private static function externalAttrs(string $url): string
+    {
+        return str_starts_with($url, 'https://') ? ' target="_blank" rel="noopener noreferrer"' : '';
+    }
+
+    private static function bottomNavigation(bool $loggedIn): string
+    {
+        $links = [
+            ['/', 'Home', self::icon('home')],
+            ['/training/portal', 'Portal Awam', self::icon('calendar')],
+            ['/training', 'Borang Daftar Program', self::icon('heart')],
+            ['/training', 'Senarai Program', self::icon('briefcase')],
+            [$loggedIn ? '/profile' : '/login', 'Akaun Saya', self::icon('user')],
+        ];
+        $html = '<nav class="portal-bottom-nav" aria-label="Navigasi mudah alih">';
+        foreach ($links as $index => [$url, $label, $icon]) {
+            $html .= '<a href="'.$url.'"'.($index === 0 ? ' aria-current="page"' : '').'>'.$icon.'<span>'.Support::escape($label).'</span></a>';
+        }
+        return $html.'</nav>';
+    }
+
+    private static function icon(string $name): string
+    {
+        $paths = [
+            'home' => '<path d="M3 10.5 12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/>',
+            'calendar' => '<path d="M5 3v3m14-3v3M3 9h18M5 5h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/>',
+            'heart' => '<path d="M20.8 5.7a5.5 5.5 0 0 0-7.8 0L12 6.8l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 22l8.8-8.5a5.5 5.5 0 0 0 0-7.8Z"/>',
+            'briefcase' => '<path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 9h18v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm0 5c5 3 13 3 18 0m-9-2v5"/>',
+            'user' => '<path d="M20 21a8 8 0 0 0-16 0m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/>',
+        ];
+        return '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'.$paths[$name].'</svg>';
+    }
+
+    public static function camera(): string
+    {
+        return '<section class="card" id="qr-camera"><h2>Imbas QR kehadiran</h2><p>Kamera memerlukan HTTPS dan kebenaran anda. Token boleh dimasukkan secara manual.</p><button type="button" id="camera-start">Buka kamera</button><button type="button" id="camera-stop" hidden>Hentikan kamera</button><video id="camera-video" playsinline muted hidden aria-label="Pratonton kamera QR"></video><canvas id="camera-canvas" hidden></canvas><p id="camera-status" role="status" aria-live="polite"></p></section>';
+    }
 }

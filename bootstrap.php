@@ -19,7 +19,9 @@ spl_autoload_register(static function (string $class): void {
     $file = APP_ROOT . '/app/Core/' . $name . '.php';
     if (is_file($file)) require $file;
 });
-
+if (is_file(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
 ini_set('display_errors', '0');
 ini_set('log_errors', '0');
 error_reporting(E_ALL);

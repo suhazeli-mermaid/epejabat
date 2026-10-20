@@ -11,3 +11,4 @@
 !/log/.htaccess
 !/log/access-probe.html
 /error_log
+/vendor/

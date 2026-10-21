@@ -37,14 +37,80 @@ Pakej ZIP dan checksum SHA-256 akan berada dalam `deployment/packages/`. Penjana
 
 Pakej SQL mesti diimport ke pangkalan data kosong. Jangan import fail ini di atas pangkalan data live sedia ada.
 
-## 3. Deployment baharu melalui cPanel
+## 3. Deployment automatik melalui cPanel Terminal (disyorkan)
+
+Skrip `bin/cpanel-deploy.php` hanya boleh dijalankan melalui CLI. Ia memerlukan arahan dijalankan terus dari Document Root domain akar, mengambil snapshot penuh database dan fail runtime yang akan berubah, mengaktifkan konfigurasi produksi, menjalankan migrasi secara berurutan, kemudian menuntut kadar lulus regresi 100%. Kata laluan database dibaca daripada `.env` dan tidak boleh diberi sebagai argumen CLI.
+
+### A. Persediaan satu kali
+
+```bash
+cd /home/CPANEL_USER/pkdkb.epejabat.net
+cp .env.production.example .env
+chmod 600 .env
+php -r 'echo bin2hex(random_bytes(16)), PHP_EOL;'
+```
+
+Masukkan nilai rawak terakhir sebagai `APP_INSTANCE`, kemudian lengkapkan `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` dan `DB_PASSWORD` dalam `.env`. Pastikan database untuk mode `fresh` benar-benar kosong. Jangan letak projek di subfolder `epejabat`.
+
+Semak prasyarat tanpa mengubah aplikasi:
+
+```bash
+php bin/cpanel-deploy.php preflight
+```
+
+Semua semakan mesti `PASS`, termasuk PHP 8.2+, `pdo_mysql`, GD, cURL, OpenSSL, Fileinfo, Mbstring, ZIP, direktori `storage/`, `mysql`, `mysqldump`, MySQL 8.0.16+ atau MariaDB 10.6+, serta konfigurasi domain akar.
+
+### B. Pemasangan baharu (`fresh`)
+
+```bash
+export EPEJABAT_ADMIN_NAME='Nama Pentadbir'
+export EPEJABAT_ADMIN_USERNAME='superadmin'
+export EPEJABAT_ADMIN_EMAIL='admin@example.gov.my'
+export EPEJABAT_ORG_CODE='PKDKB'
+export EPEJABAT_ORG_NAME='Pejabat Kesihatan Daerah Kota Bharu'
+php bin/cpanel-deploy.php deploy --mode=fresh --confirm=pkdkb.epejabat.net
+unset EPEJABAT_ADMIN_NAME EPEJABAT_ADMIN_USERNAME EPEJABAT_ADMIN_EMAIL EPEJABAT_ORG_CODE EPEJABAT_ORG_NAME
+```
+
+Skrip meminta kata laluan Super Admin secara tersembunyi. Untuk terminal bukan interaktif sahaja, bekalkan `EPEJABAT_ADMIN_PASSWORD` melalui environment dan padamkannya sebaik proses selesai; jangan masukkannya sebagai argumen atau commit ke Git.
+
+Urutan migrasi ialah Phase 0, Phase 1 Shared Core, Training T1–T6, kemudian Phase 2 e-Forms & Public Programs. Selepas semakan skema/RBAC awal lulus, skrip menjana `config/core.key`, menetapkan `installation_status=complete`, menghasilkan `storage/installed.lock`, membuka maintenance, dan menjalankan ujian HTTP serta matriks 403.
+
+### C. Kemas kini pemasangan sedia ada (`upgrade`)
+
+```bash
+php bin/cpanel-deploy.php deploy --mode=upgrade --actor=ID_SUPER_ADMIN --confirm=pkdkb.epejabat.net
+```
+
+`--actor` boleh ditinggalkan hanya apabila tepat satu Super Admin aktif wujud. Mode ini mengekalkan `core.key`, menjalankan API migrasi rasmi secara idempoten, dan menolak database yang belum mempunyai pemasangan lengkap atau `APP_INSTANCE` yang sepadan.
+
+### D. Regresi dan laporan
+
+Suite regresi boleh dijalankan berasingan tanpa migrasi:
+
+```bash
+php bin/cpanel-deploy.php regression --origin=https://pkdkb.epejabat.net --actor=ID_SUPER_ADMIN
+```
+
+Ia menguji front controller, login, Public Programs, e-Forms, redirect 303, laluan terlindung, penolakan 403 untuk awam dan pengguna biasa, ledger/checksum migrasi, RBAC, serta integriti skema e-Forms/Public Programs. Fixture pengguna biasa dicipta sementara dan dibersihkan semula.
+
+Setiap deployment menyimpan:
+
+- snapshot SQL dan `.sha256` dalam `storage/backups/`;
+- log terperinci dalam `storage/logs/cpanel-deploy-<run-id>.log`;
+- snapshot fail, laporan JSON rasmi dan checksum SHA-256 dalam `storage/deployments/<run-id>/`;
+- laporan terakhir dalam `storage/deployments/latest-report.json`.
+
+Jika mana-mana migrasi, finalization atau ujian gagal, skrip mengaktifkan maintenance, memulihkan keseluruhan database daripada snapshot, dan memulihkan fail `.env`, `.htaccess`, `.user.ini`, `config/app.php`, `core.key`, `setup.php` serta `installed.lock`. Jika rollback itu sendiri gagal, `storage/upgrades/blocked.lock` dikekalkan dan aplikasi mesti diperiksa secara manual sebelum trafik dibuka.
+
+## 4. Deployment baharu manual melalui cPanel
 
 ### A. Sediakan domain dan fail
 
 1. Dalam cPanel, tetapkan Document Root subdomain `pkdkb.epejabat.net` kepada direktori yang akan mengandungi `index.php`, contohnya `/home/CPANEL_USER/pkdkb.epejabat.net`. Jangan ekstrak ke satu lagi subfolder `epejabat`.
 2. Buka File Manager, muat naik ZIP daripada `deployment/packages/`, kemudian Extract terus ke Document Root.
 3. Pakej binaan sudah mengaktifkan kandungan `.htaccess.production` sebagai `.htaccess` dan `.user.ini.production` sebagai `.user.ini`. Jika memuat naik fail Git secara manual, salin kedua-dua templat produksi itu ke nama aktif dan gantikan versi XAMPP.
-4. Pastikan `storage/logs`, `storage/files`, `storage/sessions`, `storage/documents`, `storage/imports`, `storage/backups` dan `storage/uploads` wujud serta boleh ditulis oleh proses PHP. Gunakan permission paling ketat yang berfungsi; lazimnya direktori `0750` dan fail rahsia `0600`.
+4. Pastikan `storage/logs`, `storage/files`, `storage/sessions`, `storage/documents`, `storage/imports`, `storage/backups`, `storage/uploads`, `storage/upgrades`, `storage/deployments`, `storage/eforms-originals` dan `storage/eforms-packages` wujud serta boleh ditulis oleh proses PHP. Gunakan permission paling ketat yang berfungsi; lazimnya direktori `0750` dan fail rahsia `0600`.
 
 ### B. Cipta dan import pangkalan data
 
@@ -100,13 +166,13 @@ Jangan jana semula `core.key` selepas data terenkripsi wujud. Simpan salinan kun
 4. Pastikan `storage/installed.lock` wujud dan `config/setup.php` telah dibuang oleh installer.
 5. Uji `/`, `/login`, `/eforms`, `/public-program.php`, aset CSS/JS, muat naik portal Admin, dan respons mudah alih. HTTP mesti dilencongkan ke HTTPS; akses terus ke `/config`, `/database`, `/storage` dan fail `.env` mesti menerima 403.
 
-## 4. Kemas kini pemasangan live sedia ada
+## 5. Kemas kini pemasangan live sedia ada secara manual
 
 Jangan import `epejabat_clean_install.sql` pada live sedia ada. Ambil backup penuh database, `storage/`, `.env`, `config/app.php` dan `config/core.key`; muat naik kod baharu sambil mengekalkan fail rahsia tersebut; gantikan `.htaccess` dengan versi produksi; kemudian jalankan aliran `/upgrade` sebagai Super Admin. Semak pelan/checksum migrasi sebelum Apply dan gunakan skrin migrasi e-Forms untuk migrasi Phase 2 yang masih pending.
 
 Rollback kod dibuat dengan mengembalikan release ZIP sebelumnya. Rollback schema/data mesti menggunakan backup database yang diambil sebelum upgrade; jangan padam jadual secara manual.
 
-## 5. Pemeriksaan keselamatan selepas deployment
+## 6. Pemeriksaan keselamatan selepas deployment
 
 ```bash
 curl -I http://pkdkb.epejabat.net/

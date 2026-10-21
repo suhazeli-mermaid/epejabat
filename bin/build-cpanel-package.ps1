@@ -36,7 +36,7 @@ try {
     $runtimeDirectories = @(
         'storage\logs', 'storage\files', 'storage\sessions', 'storage\documents',
         'storage\imports', 'storage\backups', 'storage\uploads', 'storage\upgrades',
-        'storage\eforms-originals', 'storage\eforms-packages'
+        'storage\deployments', 'storage\eforms-originals', 'storage\eforms-packages'
     )
     foreach ($relative in $runtimeDirectories) {
         $directory = Join-Path $stage $relative

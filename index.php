@@ -14,6 +14,8 @@ $GLOBALS['pdo']=$pdo;
 $status=Database::query($pdo,"SELECT setting_value FROM system_settings WHERE setting_key='installation_status'")->fetchColumn();
 if($status!=='complete'){http_response_code(503);Support::layout('Pemasangan belum selesai','<a href="/install">Sambung pemasangan</a>');}
 $user=Auth::user($pdo);$GLOBALS['ui_user']=$user;$GLOBALS['ui_versions']=\EPejabat\Core\Versions::read($pdo);
+$adminOnlyPaths=['/admin/portal-settings','/audit','/registry','/registrations','/organisations','/master-data','/roles','/settings','/modules'];
+if(!$user&&in_array($path,$adminOnlyPaths,true)){http_response_code(403);Support::layout('Akses ditolak','<p>Log masuk dengan akaun pentadbir yang dibenarkan.</p>');}
 if(is_file(APP_ROOT.'/storage/upgrades/maintenance.lock')&&!in_array($path,['/login','/logout','/upgrade'],true)){http_response_code(503);Support::layout('Penyelenggaraan','<p>Upgrade sedang berjalan. Sila cuba kemudian.</p>');}
 if($path==='/logout'){
  if($_SERVER['REQUEST_METHOD']!=='POST'){http_response_code(405);header('Allow: POST');exit;}

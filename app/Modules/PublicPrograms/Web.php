@@ -9,7 +9,7 @@ final class Web {
  public static function handle(\PDO $p,?array $user,string $origin):never {
   $h='';$admin=isset($_GET['admin']);$id=Core::id($_GET['id']??null,true);
   try {
-   if($admin&&!$user)Support::redirect('/login');
+   if($admin&&!$user)throw new AccessDenied('Akses pentadbiran program awam ditolak.');
    if($admin&&!self::adminAllowed($p,(int)$user['id'],$id))throw new AccessDenied('Akses pentadbiran program awam ditolak.');
    if($_SERVER['REQUEST_METHOD']==='POST'){
     Support::checkCsrf();$action=Support::post('action',30);

@@ -46,6 +46,7 @@ final class CpanelDeployment
     private string $logFile = '';
     private string $databaseBackup = '';
     private string $databaseBackupHash = '';
+    private string $databaseBackupDriver = '';
     private string $fileBackup = '';
     private string $startedAt = '';
     /** @var array<int,array<string,mixed>> */
@@ -96,9 +97,10 @@ e-Pejabat cPanel deployment CLI
   php bin/cpanel-deploy.php deploy --mode=fresh --confirm=pkdkb.epejabat.net
   php bin/cpanel-deploy.php deploy --mode=upgrade --actor=1 --confirm=pkdkb.epejabat.net
 
-Fresh deployment requires EPEJABAT_ADMIN_NAME, EPEJABAT_ADMIN_USERNAME,
-EPEJABAT_ADMIN_EMAIL, EPEJABAT_ORG_CODE and EPEJABAT_ORG_NAME. Supply the
-password through EPEJABAT_ADMIN_PASSWORD or an interactive hidden prompt.
+Fresh deployment reads DEFAULT_ADMIN_USER, DEFAULT_ADMIN_EMAIL,
+DEFAULT_ADMIN_PASS, DEFAULT_ORG_NAME and DEFAULT_ORG_CODE from .env. The
+legacy EPEJABAT_ADMIN_* environment variables remain supported and take
+precedence. A missing password is requested through an interactive hidden prompt.
 Never place a password in CLI arguments.
 TXT;
         echo "\n";
@@ -121,6 +123,7 @@ TXT;
 
     private function preflightCommand(array $options): int
     {
+        $this->ensureRuntimeDirectories();
         $checks = $this->preflight(false);
         echo json_encode(['status' => self::allPass($checks) ? 'PASS' : 'BLOCKED', 'checks' => $checks], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR) . "\n";
         return self::allPass($checks) ? 0 : 1;
@@ -173,6 +176,7 @@ TXT;
             $this->log('INFO', 'Deployment started', ['mode' => $mode, 'run_id' => $this->runId]);
             $checks = $this->preflight(true);
             $this->requirePass($checks, 'Preflight gagal.');
+            if ($mode === 'fresh') $this->validateFreshAdminEnvironment();
             $this->snapshotFiles();
             $this->connect();
             $this->assertMode($mode);
@@ -181,6 +185,7 @@ TXT;
             $this->writeMaintenanceLock();
             $this->installProductionFiles();
 
+            if ($mode === 'upgrade') $this->prepareManagedSchema('upgrade');
             $actor = $mode === 'fresh'
                 ? $this->migrateFresh()
                 : $this->migrateExisting(isset($options['actor']) ? self::positiveInt($options['actor'], 'actor') : null);
@@ -268,6 +273,7 @@ TXT;
         $ini = is_file(APP_ROOT . '/.user.ini.production') ? (string) file_get_contents(APP_ROOT . '/.user.ini.production') : '';
         $add('Production PHP error policy', str_contains($ini, 'display_errors = Off') && str_contains($ini, 'log_errors = On'), '.user.ini.production');
         $add('Production app config template', is_file(APP_ROOT . '/config/app.php.production'), 'config/app.php.production');
+        $add('Managed schema bootstrap', is_file(APP_ROOT . '/database/schema.sql') && !is_link(APP_ROOT . '/database/schema.sql'), 'database/schema.sql');
 
         foreach (self::RUNTIME_DIRECTORIES as $relative) {
             $path = APP_ROOT . '/' . $relative;
@@ -276,11 +282,12 @@ TXT;
         }
         $free = @disk_free_space(APP_ROOT . '/storage');
         $add('Free storage >= 256 MiB', is_float($free) && $free >= 268435456, is_float($free) ? (string) (int) $free : 'unknown');
-        $add('proc_open available', function_exists('proc_open'), function_exists('proc_open') ? 'available' : 'disabled');
         $dump = $this->findBinary('mysqldump');
         $mysql = $this->findBinary('mysql');
-        $add('mysqldump CLI', $dump !== null, $dump ?? 'missing');
-        $add('mysql CLI', $mysql !== null, $mysql ?? 'missing');
+        $processBackend = $this->processBackend();
+        $nativeDatabaseTools = $processBackend !== 'pdo' && $dump !== null && $mysql !== null;
+        $add('Process execution backend', true, $processBackend === 'pdo' ? 'PDO direct fallback' : $processBackend);
+        $add('Database backup/restore backend', true, $nativeDatabaseTools ? 'mysql CLI + ' . $processBackend : 'PDO direct fallback');
         if ($deployment) {
             $maintenance = APP_ROOT . '/storage/upgrades/maintenance.lock';
             $blocked = APP_ROOT . '/storage/upgrades/blocked.lock';
@@ -295,6 +302,14 @@ TXT;
             $compatible = isset($version[1]) && version_compare($version[1], $minimum, '>=');
             $add('Database connection', true, 'connected');
             $add('Database version', $compatible, $server . ' (minimum ' . $minimum . ')');
+            if (!$nativeDatabaseTools) {
+                try {
+                    $this->assertPdoBackupCompatible($pdo);
+                    $add('PDO snapshot compatibility', true, 'base-table snapshot supported');
+                } catch (Throwable $fallbackError) {
+                    $add('PDO snapshot compatibility', false, self::safeError($fallbackError));
+                }
+            }
             $pdo = null;
         } catch (Throwable $error) {
             $add('Database connection', false, self::safeError($error));
@@ -309,8 +324,8 @@ TXT;
         foreach (self::RUNTIME_DIRECTORIES as $relative) {
             $path = APP_ROOT . '/' . $relative;
             if (is_link($path)) throw new RuntimeException('Symlink runtime ditolak: ' . $relative);
-            if (!is_dir($path) && !mkdir($path, 0750, true)) throw new RuntimeException('Direktori tidak boleh dicipta: ' . $relative);
-            @chmod($path, 0750);
+            if (!is_dir($path) && !mkdir($path, 0755, true)) throw new RuntimeException('Direktori tidak boleh dicipta: ' . $relative);
+            @chmod($path, 0755);
         }
     }
 
@@ -324,13 +339,19 @@ TXT;
         $tables = $this->pdo?->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN) ?? [];
         if ($mode === 'fresh' && $tables !== []) throw new RuntimeException('Mode fresh memerlukan database kosong.');
         if ($mode === 'upgrade') {
-            foreach (['database_migrations', 'system_settings', 'users'] as $required) {
+            foreach (['database_migrations', 'users'] as $required) {
                 if (!in_array($required, $tables, true)) throw new RuntimeException('Mode upgrade memerlukan pemasangan lengkap.');
             }
-            $status = Database::query($this->pdo, "SELECT setting_value FROM system_settings WHERE setting_key='installation_status'")->fetchColumn();
-            if ($status !== 'complete' || !is_file(APP_ROOT . '/storage/installed.lock')) throw new RuntimeException('Mode upgrade memerlukan pemasangan complete dan installed.lock.');
-            $instance = Database::query($this->pdo, "SELECT setting_value FROM system_settings WHERE setting_key='installation_instance'")->fetchColumn();
-            if (!is_string($instance) || !hash_equals(strtolower($this->env['APP_INSTANCE']), strtolower($instance))) throw new RuntimeException('APP_INSTANCE tidak sepadan.');
+            if (!is_file(APP_ROOT . '/storage/installed.lock') || is_link(APP_ROOT . '/storage/installed.lock')) throw new RuntimeException('Mode upgrade memerlukan installed.lock yang sah.');
+            if (in_array('system_settings', $tables, true)) {
+                $manager = new CpanelUpgradeManager(APP_ROOT);
+                $status = Database::query($this->pdo, "SELECT setting_value FROM system_settings WHERE setting_key='installation_status'")->fetchColumn();
+                if ($status !== 'complete' && !($status === false && $manager->canRecoverSettings($this->pdo))) throw new RuntimeException('Mode upgrade memerlukan installation_status complete.');
+                $instance = Database::query($this->pdo, "SELECT setting_value FROM system_settings WHERE setting_key='installation_instance'")->fetchColumn();
+                if ($instance !== false && (!is_string($instance) || !hash_equals(strtolower($this->env['APP_INSTANCE']), strtolower($instance)))) throw new RuntimeException('APP_INSTANCE tidak sepadan.');
+            } elseif (!(new CpanelUpgradeManager(APP_ROOT))->canRecoverSettings($this->pdo)) {
+                throw new RuntimeException('system_settings hilang dan tidak boleh dipulihkan secara selamat.');
+            }
             Crypto::key();
         }
     }
@@ -353,29 +374,35 @@ TXT;
     private function backupDatabase(): void
     {
         $dump = $this->findBinary('mysqldump');
-        if ($dump === null) throw new RuntimeException('mysqldump tidak tersedia.');
+        $mysql = $this->findBinary('mysql');
         $this->databaseBackup = APP_ROOT . '/storage/backups/cpanel_pre_' . gmdate('Ymd_His') . '_' . $this->runId . '.sql';
-        $arguments = [
-            '--host=' . $this->dbConfig['host'],
-            '--port=' . $this->dbConfig['port'],
-            '--user=' . $this->dbConfig['user'],
-            '--default-character-set=utf8mb4',
-            '--single-transaction',
-            '--skip-lock-tables',
-            '--routines',
-            '--events',
-            '--triggers',
-            '--add-drop-table',
-            '--result-file=' . $this->databaseBackup,
-            (string) $this->dbConfig['name'],
-        ];
-        $this->runProcess($dump, $arguments, null, $this->runDirectory . '/mysqldump.stderr.log');
+        if ($dump !== null && $mysql !== null && $this->processBackend() !== 'pdo') {
+            $arguments = [
+                '--host=' . $this->dbConfig['host'],
+                '--port=' . $this->dbConfig['port'],
+                '--user=' . $this->dbConfig['user'],
+                '--default-character-set=utf8mb4',
+                '--single-transaction',
+                '--skip-lock-tables',
+                '--routines',
+                '--events',
+                '--triggers',
+                '--add-drop-table',
+                '--result-file=' . $this->databaseBackup,
+                (string) $this->dbConfig['name'],
+            ];
+            $this->runProcess($dump, $arguments, null, $this->runDirectory . '/mysqldump.stderr.log');
+            $this->databaseBackupDriver = 'mysql-cli';
+        } else {
+            $this->backupDatabaseWithPdo($this->databaseBackup);
+            $this->databaseBackupDriver = 'pdo-direct';
+        }
         clearstatcache(true, $this->databaseBackup);
         if (!is_file($this->databaseBackup) || filesize($this->databaseBackup) < 100) throw new RuntimeException('Snapshot database tidak lengkap.');
         @chmod($this->databaseBackup, 0600);
         $this->databaseBackupHash = hash_file('sha256', $this->databaseBackup);
         Support::secureWrite($this->databaseBackup . '.sha256', $this->databaseBackupHash . '  ' . basename($this->databaseBackup) . "\n");
-        $this->log('INFO', 'Database snapshot completed', ['file' => basename($this->databaseBackup), 'sha256' => $this->databaseBackupHash]);
+        $this->log('INFO', 'Database snapshot completed', ['file' => basename($this->databaseBackup), 'sha256' => $this->databaseBackupHash, 'driver' => $this->databaseBackupDriver]);
     }
 
     private function installProductionFiles(): void
@@ -456,6 +483,7 @@ TXT;
         }
         $instance = strtolower($this->env['APP_INSTANCE']);
         Migrations::runFresh($this->pdo, $instance);
+        $this->prepareManagedSchema('fresh');
         $this->phaseReport[] = ['phase' => 'Phase 0', 'status' => 'APPLIED', 'migrations' => count(glob(APP_ROOT . '/database/migrations/*.sql') ?: [])];
 
         $core = Upgrade::files();
@@ -526,22 +554,69 @@ TXT;
         }
     }
 
+    private function prepareManagedSchema(string $mode): void
+    {
+        if ($this->pdo === null) throw new RuntimeException('Database tidak tersedia.');
+        $result = (new CpanelUpgradeManager(APP_ROOT))->prepare(
+            $this->pdo,
+            strtolower((string) ($this->env['APP_INSTANCE'] ?? '')),
+            $mode
+        );
+        $this->log('INFO', 'Managed schema prepared', $result);
+    }
+
+    private function validateFreshAdminEnvironment(): void
+    {
+        $name = trim($this->adminValue('EPEJABAT_ADMIN_NAME', 'DEFAULT_ADMIN_NAME', 'Pentadbir Sistem'));
+        $username = strtolower(trim($this->adminValue('EPEJABAT_ADMIN_USERNAME', 'DEFAULT_ADMIN_USER')));
+        $email = strtolower(trim($this->adminValue('EPEJABAT_ADMIN_EMAIL', 'DEFAULT_ADMIN_EMAIL')));
+        $orgCode = trim($this->adminValue('EPEJABAT_ORG_CODE', 'DEFAULT_ORG_CODE'));
+        $orgName = trim($this->adminValue('EPEJABAT_ORG_NAME', 'DEFAULT_ORG_NAME'));
+        $password = $this->adminValue('EPEJABAT_ADMIN_PASSWORD', 'DEFAULT_ADMIN_PASS');
+        $interactivePassword = $password === '' && function_exists('stream_isatty') && stream_isatty(STDIN) && DIRECTORY_SEPARATOR !== '\\';
+        if ($name === '' || mb_strlen($name) > 190 || preg_match('/\A[a-z0-9_.-]{3,64}\z/', $username) !== 1
+            || !filter_var($email, FILTER_VALIDATE_EMAIL) || preg_match('/\A[A-Za-z0-9_-]{2,50}\z/', $orgCode) !== 1
+            || $orgName === '' || mb_strlen($orgName) > 190 || (!$interactivePassword && ($password === '' || strlen($password) < 12 || strlen($password) > 72))
+            || str_contains($password, "\0")) {
+            throw new RuntimeException('Tetapan DEFAULT_ADMIN_*/DEFAULT_ORG_* untuk pemasangan fresh tidak sah.');
+        }
+        if ($password !== '' && hash_equals('Password1234!', $password)) {
+            throw new RuntimeException('DEFAULT_ADMIN_PASS contoh mesti ditukar sebelum deployment produksi.');
+        }
+    }
+
+    private function adminValue(string $legacyKey, string $defaultKey, string $fallback = ''): string
+    {
+        $legacy = getenv($legacyKey);
+        if (is_string($legacy) && $legacy !== '') return $legacy;
+        return array_key_exists($defaultKey, $this->env) ? $this->env[$defaultKey] : $fallback;
+    }
+
     private function createInitialAdmin(): int
     {
         if ($this->pdo === null) throw new RuntimeException('Database tidak tersedia.');
-        $name = trim((string) getenv('EPEJABAT_ADMIN_NAME'));
-        $username = strtolower(trim((string) getenv('EPEJABAT_ADMIN_USERNAME')));
-        $email = strtolower(trim((string) getenv('EPEJABAT_ADMIN_EMAIL')));
-        $orgCode = trim((string) getenv('EPEJABAT_ORG_CODE'));
-        $orgName = trim((string) getenv('EPEJABAT_ORG_NAME'));
-        $password = (string) getenv('EPEJABAT_ADMIN_PASSWORD');
+        $name = trim($this->adminValue('EPEJABAT_ADMIN_NAME', 'DEFAULT_ADMIN_NAME', 'Pentadbir Sistem'));
+        $username = strtolower(trim($this->adminValue('EPEJABAT_ADMIN_USERNAME', 'DEFAULT_ADMIN_USER')));
+        $email = strtolower(trim($this->adminValue('EPEJABAT_ADMIN_EMAIL', 'DEFAULT_ADMIN_EMAIL')));
+        $orgCode = trim($this->adminValue('EPEJABAT_ORG_CODE', 'DEFAULT_ORG_CODE'));
+        $orgName = trim($this->adminValue('EPEJABAT_ORG_NAME', 'DEFAULT_ORG_NAME'));
+        $password = $this->adminValue('EPEJABAT_ADMIN_PASSWORD', 'DEFAULT_ADMIN_PASS');
         if ($password === '') $password = $this->hiddenPassword();
         putenv('EPEJABAT_ADMIN_PASSWORD');
-        unset($_ENV['EPEJABAT_ADMIN_PASSWORD'], $_SERVER['EPEJABAT_ADMIN_PASSWORD']);
+        putenv('DEFAULT_ADMIN_PASS');
+        unset(
+            $_ENV['EPEJABAT_ADMIN_PASSWORD'],
+            $_SERVER['EPEJABAT_ADMIN_PASSWORD'],
+            $_ENV['DEFAULT_ADMIN_PASS'],
+            $_SERVER['DEFAULT_ADMIN_PASS'],
+            $this->env['DEFAULT_ADMIN_PASS'],
+            $this->env['EPEJABAT_ADMIN_PASSWORD']
+        );
 
         if ($name === '' || mb_strlen($name) > 190 || preg_match('/\A[a-z0-9_.-]{3,64}\z/', $username) !== 1
             || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 12 || strlen($password) > 72
-            || str_contains($password, "\0") || preg_match('/\A[A-Za-z0-9_-]{2,50}\z/', $orgCode) !== 1
+            || str_contains($password, "\0") || hash_equals('Password1234!', $password)
+            || preg_match('/\A[A-Za-z0-9_-]{2,50}\z/', $orgCode) !== 1
             || $orgName === '' || mb_strlen($orgName) > 190) {
             $password = '';
             throw new RuntimeException('Maklumat Super Admin/organisasi fresh tidak sah.');
@@ -589,9 +664,10 @@ TXT;
     private function finalize(string $mode, int $actor): void
     {
         if ($this->pdo === null) throw new RuntimeException('Database tidak tersedia.');
+        $manager = new CpanelUpgradeManager(APP_ROOT);
         if ($mode === 'fresh') {
             Crypto::initialize();
-            Database::query($this->pdo, "UPDATE system_settings SET setting_value='complete' WHERE setting_key='installation_status'");
+            $manager->markComplete($this->pdo);
             if (!defined('FRESH_INSTALL_MIGRATION')) define('FRESH_INSTALL_MIGRATION', true);
             $code = (string) Database::query($this->pdo, "SELECT setting_value FROM system_settings WHERE setting_key='deployment_initial_org_code'")->fetchColumn();
             $name = (string) Database::query($this->pdo, "SELECT setting_value FROM system_settings WHERE setting_key='deployment_initial_org_name'")->fetchColumn();
@@ -601,15 +677,11 @@ TXT;
             Crypto::key();
             $status = Database::query($this->pdo, "SELECT setting_value FROM system_settings WHERE setting_key='installation_status'")->fetchColumn();
             if ($status !== 'complete') throw new RuntimeException('Status pemasangan berubah semasa upgrade.');
+            $manager->markComplete($this->pdo);
         }
 
         $checksum = $this->deploymentChecksum();
-        Support::secureWrite(APP_ROOT . '/storage/installed.lock', json_encode([
-            'instance' => strtolower($this->env['APP_INSTANCE']),
-            'completed_at' => gmdate('c'),
-            'deployment_run' => $this->runId,
-            'deployment_sha256' => $checksum,
-        ], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
+        $manager->writeInstalledLock($this->pdo, strtolower($this->env['APP_INSTANCE']), $this->runId, $checksum);
         $setup = APP_ROOT . '/config/setup.php';
         if (is_file($setup) && !is_link($setup) && !unlink($setup)) throw new RuntimeException('config/setup.php tidak boleh dibuang.');
         $this->log('INFO', 'Finalization candidate created', ['deployment_sha256' => $checksum]);
@@ -656,6 +728,10 @@ TXT;
             $count = (int) $this->pdo->query("SELECT COUNT(*) FROM portal_banners WHERE (content_type='HERO' AND slot=1) OR (content_type='ACTIVITY' AND slot BETWEEN 1 AND 6) OR (content_type='QUICK_LINK' AND slot BETWEEN 1 AND 4)")->fetchColumn();
             if ($count !== 11) throw new RuntimeException('Slot portal tidak lengkap.');
             return '11 slots';
+        });
+        $this->test($tests, 'Managed schema integrity', function (): string {
+            $result = (new CpanelUpgradeManager(APP_ROOT))->verify($this->pdo);
+            return $result['detail'];
         });
         $this->test($tests, 'Super Admin RBAC', function () use ($actor): string {
             if (!Authorization::super($this->pdo, $actor) || !Authorization::allowed($this->pdo, $actor, 'core.portal.manage')) throw new RuntimeException('Super Admin permission gagal.');
@@ -913,7 +989,7 @@ TXT;
             'tests_total' => $total,
             'pass_rate' => 100,
             'tests' => $tests,
-            'database_backup' => ['file' => basename($this->databaseBackup), 'sha256' => $this->databaseBackupHash],
+            'database_backup' => ['file' => basename($this->databaseBackup), 'sha256' => $this->databaseBackupHash, 'driver' => $this->databaseBackupDriver],
             'deployment_sha256' => $this->deploymentChecksum(),
         ];
         $path = $this->runDirectory . '/deployment-report.json';
@@ -990,21 +1066,27 @@ TXT;
         if ($views !== []) $pdo->exec('DROP VIEW IF EXISTS ' . implode(',', $views));
         if ($tables !== []) $pdo->exec('DROP TABLE IF EXISTS ' . implode(',', $tables));
         $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
-        $pdo = null;
         $this->pdo = null;
 
         $mysql = $this->findBinary('mysql');
-        if ($mysql === null) throw new RuntimeException('mysql CLI tidak tersedia untuk rollback.');
-        $arguments = [
-            '--host=' . $this->dbConfig['host'],
-            '--port=' . $this->dbConfig['port'],
-            '--user=' . $this->dbConfig['user'],
-            '--default-character-set=utf8mb4',
-            (string) $this->dbConfig['name'],
-        ];
-        $this->runProcess($mysql, $arguments, $this->databaseBackup, $this->runDirectory . '/mysql-restore.stderr.log');
+        if ($this->databaseBackupDriver === 'mysql-cli' && $mysql !== null && $this->processBackend() !== 'pdo') {
+            $pdo = null;
+            $arguments = [
+                '--host=' . $this->dbConfig['host'],
+                '--port=' . $this->dbConfig['port'],
+                '--user=' . $this->dbConfig['user'],
+                '--default-character-set=utf8mb4',
+                (string) $this->dbConfig['name'],
+            ];
+            $this->runProcess($mysql, $arguments, $this->databaseBackup, $this->runDirectory . '/mysql-restore.stderr.log');
+        } elseif ($this->databaseBackupDriver === 'pdo-direct') {
+            $this->restoreDatabaseWithPdo($pdo, $this->databaseBackup);
+            $pdo = null;
+        } else {
+            throw new RuntimeException('Backend snapshot rollback tidak tersedia.');
+        }
         $this->connect();
-        return ['status' => 'RESTORED', 'sha256' => $this->databaseBackupHash];
+        return ['status' => 'RESTORED', 'sha256' => $this->databaseBackupHash, 'driver' => $this->databaseBackupDriver];
     }
 
     /** @return array<string,mixed> */
@@ -1037,26 +1119,182 @@ TXT;
         }
     }
 
+    private function assertPdoBackupCompatible(PDO $pdo): void
+    {
+        $objects = Database::query(
+            $pdo,
+            'SELECT TABLE_NAME,TABLE_TYPE,ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE()'
+        )->fetchAll();
+        foreach ($objects as $object) {
+            if (($object['TABLE_TYPE'] ?? '') !== 'BASE TABLE' || strcasecmp((string) ($object['ENGINE'] ?? ''), 'InnoDB') !== 0) {
+                throw new RuntimeException('Fallback PDO hanya menyokong base table InnoDB.');
+            }
+        }
+        foreach (['TRIGGERS' => 'TRIGGER_SCHEMA', 'ROUTINES' => 'ROUTINE_SCHEMA', 'EVENTS' => 'EVENT_SCHEMA'] as $table => $column) {
+            $count = (int) $pdo->query('SELECT COUNT(*) FROM information_schema.' . $table . ' WHERE ' . $column . '=DATABASE()')->fetchColumn();
+            if ($count > 0) throw new RuntimeException('Fallback PDO tidak menyokong trigger, routine atau event.');
+        }
+        $spatial = (int) $pdo->query("SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=DATABASE() AND DATA_TYPE IN ('geometry','point','linestring','polygon','multipoint','multilinestring','multipolygon','geometrycollection')")->fetchColumn();
+        if ($spatial > 0) throw new RuntimeException('Fallback PDO tidak menyokong kolum spatial.');
+    }
+
+    private function backupDatabaseWithPdo(string $file): void
+    {
+        $pdo = $this->pdo ?? Database::connect($this->dbConfig);
+        $this->assertPdoBackupCompatible($pdo);
+        if (is_file($file) || is_link($file)) throw new RuntimeException('Sasaran snapshot PDO telah wujud.');
+        $handle = fopen($file, 'xb');
+        if ($handle === false) throw new RuntimeException('Snapshot PDO tidak boleh dicipta.');
+        @chmod($file, 0600);
+        $bytes = 0;
+        $write = static function (string $data) use ($handle, &$bytes): void {
+            $bytes += strlen($data);
+            if ($bytes > 536870912) throw new RuntimeException('Snapshot PDO melebihi 512 MiB.');
+            $offset = 0;
+            while ($offset < strlen($data)) {
+                $written = fwrite($handle, substr($data, $offset));
+                if ($written === false || $written === 0) throw new RuntimeException('Snapshot PDO tidak boleh ditulis.');
+                $offset += $written;
+            }
+        };
+
+        try {
+            $pdo->exec('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ');
+            $pdo->exec('START TRANSACTION WITH CONSISTENT SNAPSHOT');
+            $write("-- EPEJABAT CPANEL PDO SNAPSHOT v1\nSET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS=0;\nSET time_zone='+00:00';\n");
+            $tables = $pdo->query("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_TYPE='BASE TABLE' ORDER BY TABLE_NAME")->fetchAll(PDO::FETCH_COLUMN);
+            foreach ($tables as $table) {
+                $table = (string) $table;
+                $quotedTable = self::quoteIdentifier($table);
+                $ddl = $pdo->query('SHOW CREATE TABLE ' . $quotedTable)->fetch(PDO::FETCH_NUM);
+                if (!is_array($ddl) || !isset($ddl[1])) throw new RuntimeException('DDL snapshot tidak tersedia: ' . $table);
+                $columns = $pdo->query('SHOW FULL COLUMNS FROM ' . $quotedTable)->fetchAll();
+                $insertColumns = [];
+                foreach ($columns as $column) {
+                    if (preg_match('/(?:VIRTUAL|STORED) GENERATED/i', (string) ($column['Extra'] ?? ''))) continue;
+                    $insertColumns[] = (string) $column['Field'];
+                }
+                if ($insertColumns === []) throw new RuntimeException('Jadual generated-only tidak disokong: ' . $table);
+                $write('DROP TABLE IF EXISTS ' . $quotedTable . ";\n" . (string) $ddl[1] . ";\n");
+                $buffered = (bool) $pdo->getAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY);
+                $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+                $select = null;
+                try {
+                    $select = $pdo->query('SELECT ' . implode(',', array_map([self::class, 'quoteIdentifier'], $insertColumns)) . ' FROM ' . $quotedTable);
+                    while ($row = $select->fetch(PDO::FETCH_NUM)) {
+                        $values = array_map(static fn(mixed $value): string => $value === null ? 'NULL' : "X'" . bin2hex((string) $value) . "'", $row);
+                        $write('INSERT INTO ' . $quotedTable . ' (' . implode(',', array_map([self::class, 'quoteIdentifier'], $insertColumns)) . ') VALUES (' . implode(',', $values) . ");\n");
+                    }
+                } finally {
+                    if ($select instanceof \PDOStatement) $select->closeCursor();
+                    $pdo->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, $buffered);
+                }
+            }
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            $write("SET FOREIGN_KEY_CHECKS=1;\n-- EPEJABAT SNAPSHOT COMPLETE\n");
+            if (!fflush($handle)) throw new RuntimeException('Snapshot PDO tidak dapat di-flush.');
+            fclose($handle);
+        } catch (Throwable $error) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            fclose($handle);
+            if (is_file($file) && !is_link($file)) @unlink($file);
+            throw $error;
+        }
+    }
+
+    private function restoreDatabaseWithPdo(PDO $pdo, string $file): void
+    {
+        $handle = fopen($file, 'rb');
+        if ($handle === false || trim((string) fgets($handle)) !== '-- EPEJABAT CPANEL PDO SNAPSHOT v1') {
+            if (is_resource($handle)) fclose($handle);
+            throw new RuntimeException('Format snapshot PDO tidak sah.');
+        }
+        $statement = '';
+        $executed = 0;
+        $complete = false;
+        try {
+            while (($line = fgets($handle)) !== false) {
+                $trimmed = trim($line);
+                if ($trimmed === '-- EPEJABAT SNAPSHOT COMPLETE') {
+                    $complete = true;
+                    continue;
+                }
+                if ($statement === '' && ($trimmed === '' || str_starts_with($trimmed, '--'))) continue;
+                $statement .= $line;
+                if (!str_ends_with(rtrim($statement), ';')) continue;
+                if (strlen($statement) > 67108864) throw new RuntimeException('Pernyataan snapshot PDO terlalu besar.');
+                $pdo->exec($statement);
+                $executed++;
+                $statement = '';
+            }
+            if (trim($statement) !== '' || $executed < 3 || !$complete) throw new RuntimeException('Snapshot PDO tidak lengkap.');
+        } finally {
+            fclose($handle);
+        }
+    }
+
     private function runProcess(string $binary, array $arguments, ?string $stdinFile, string $stderrFile): void
     {
         $command = array_merge([$binary], array_map('strval', $arguments));
-        $descriptors = [
-            0 => $stdinFile === null ? ['pipe', 'r'] : ['file', $stdinFile, 'r'],
-            1 => ['file', $this->runDirectory . '/process.stdout.log', 'a'],
-            2 => ['file', $stderrFile, 'a'],
-        ];
+        $stdoutFile = $this->runDirectory . '/process.stdout.log';
         $environment = getenv();
         if (!is_array($environment)) $environment = [];
         $environment['MYSQL_PWD'] = (string) $this->dbConfig['password'];
-        $process = proc_open($command, $descriptors, $pipes, APP_ROOT, $environment, ['bypass_shell' => true]);
-        if (!is_resource($process)) throw new RuntimeException('Proses CLI database tidak boleh dimulakan.');
-        if ($stdinFile === null && isset($pipes[0]) && is_resource($pipes[0])) fclose($pipes[0]);
-        $exit = proc_close($process);
-        unset($environment['MYSQL_PWD']);
+        $previousPassword = getenv('MYSQL_PWD');
+        putenv('MYSQL_PWD=' . (string) $this->dbConfig['password']);
+        $exit = null;
+        try {
+            if (function_exists('proc_open')) {
+                $descriptors = [
+                    0 => $stdinFile === null ? ['pipe', 'r'] : ['file', $stdinFile, 'r'],
+                    1 => ['file', $stdoutFile, 'a'],
+                    2 => ['file', $stderrFile, 'a'],
+                ];
+                $process = @proc_open($command, $descriptors, $pipes, APP_ROOT, $environment, ['bypass_shell' => true]);
+                if (is_resource($process)) {
+                    if ($stdinFile === null && isset($pipes[0]) && is_resource($pipes[0])) fclose($pipes[0]);
+                    $exit = proc_close($process);
+                }
+            }
+            if ($exit === null) {
+                $shell = implode(' ', array_map('escapeshellarg', $command));
+                if ($stdinFile !== null) $shell .= ' < ' . escapeshellarg($stdinFile);
+                $shell .= ' >> ' . escapeshellarg($stdoutFile) . ' 2>> ' . escapeshellarg($stderrFile);
+                if (function_exists('exec')) {
+                    $output = [];
+                    exec($shell, $output, $exit);
+                } elseif (function_exists('system')) {
+                    system($shell, $exit);
+                } elseif (function_exists('popen')) {
+                    $pipe = popen($shell, 'r');
+                    if (!is_resource($pipe)) throw new RuntimeException('popen tidak boleh memulakan proses database.');
+                    while (!feof($pipe)) fread($pipe, 8192);
+                    $exit = pclose($pipe);
+                } else {
+                    throw new RuntimeException('Tiada backend proses CLI tersedia; gunakan fallback PDO.');
+                }
+            }
+        } finally {
+            if ($previousPassword === false) putenv('MYSQL_PWD');
+            else putenv('MYSQL_PWD=' . $previousPassword);
+            unset($environment['MYSQL_PWD']);
+        }
         if ($exit !== 0) {
             $detail = is_file($stderrFile) ? trim(substr((string) file_get_contents($stderrFile), -4000)) : '';
             throw new RuntimeException('Proses CLI database gagal (exit ' . $exit . '). ' . $detail);
         }
+    }
+
+    private function processBackend(): string
+    {
+        foreach (['proc_open', 'exec', 'system', 'popen'] as $function) if (function_exists($function)) return $function;
+        return 'pdo';
+    }
+
+    private static function quoteIdentifier(string $identifier): string
+    {
+        if ($identifier === '' || strlen($identifier) > 64 || str_contains($identifier, "\0")) throw new RuntimeException('Identifier database tidak sah.');
+        return '`' . str_replace('`', '``', $identifier) . '`';
     }
 
     private function findBinary(string $name): ?string
@@ -1102,8 +1340,11 @@ TXT;
         foreach ($lines as $line) {
             $line = trim($line);
             if ($line === '' || str_starts_with($line, '#')) continue;
-            if (preg_match('/\A([A-Z][A-Z0-9_]*)=(.*)\z/s', $line, $match) !== 1) continue;
-            $value = trim($match[2], " \t\n\r\0\x0B\"'");
+            if (preg_match('/\A([A-Z][A-Z0-9_]*)\s*=\s*(.*)\z/s', $line, $match) !== 1) continue;
+            $value = trim($match[2]);
+            if (strlen($value) >= 2 && in_array($value[0], ['"', "'"], true) && str_ends_with($value, $value[0])) {
+                $value = substr($value, 1, -1);
+            }
             $env[$match[1]] = $value;
             putenv($match[1] . '=' . $value);
             $_ENV[$match[1]] = $value;

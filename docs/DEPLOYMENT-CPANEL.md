@@ -58,28 +58,22 @@ Semak prasyarat tanpa mengubah aplikasi:
 php bin/cpanel-deploy.php preflight
 ```
 
-Semua semakan mesti `PASS`, termasuk PHP 8.2+, `pdo_mysql`, GD, cURL, OpenSSL, Fileinfo, Mbstring, ZIP, direktori `storage/`, `mysql`, `mysqldump`, MySQL 8.0.16+ atau MariaDB 10.6+, serta konfigurasi domain akar.
+Semua semakan mesti `PASS`, termasuk PHP 8.2+, `pdo_mysql`, GD, cURL, OpenSSL, Fileinfo, Mbstring, ZIP, direktori `storage/`, MySQL 8.0.16+ atau MariaDB 10.6+, serta konfigurasi domain akar. `mysql`/`mysqldump` digunakan apabila tersedia; jika fungsi proses atau binary disekat, semakan keserasian snapshot PDO mesti lulus.
 
 ### B. Pemasangan baharu (`fresh`)
 
 ```bash
-export EPEJABAT_ADMIN_NAME='Nama Pentadbir'
-export EPEJABAT_ADMIN_USERNAME='superadmin'
-export EPEJABAT_ADMIN_EMAIL='admin@example.gov.my'
-export EPEJABAT_ORG_CODE='PKDKB'
-export EPEJABAT_ORG_NAME='Pejabat Kesihatan Daerah Kota Bharu'
-php bin/cpanel-deploy.php deploy --mode=fresh --confirm=pkdkb.epejabat.net
-unset EPEJABAT_ADMIN_NAME EPEJABAT_ADMIN_USERNAME EPEJABAT_ADMIN_EMAIL EPEJABAT_ORG_CODE EPEJABAT_ORG_NAME
+sh bin/cpanel-one-click.sh fresh
 ```
 
-Skrip meminta kata laluan Super Admin secara tersembunyi. Untuk terminal bukan interaktif sahaja, bekalkan `EPEJABAT_ADMIN_PASSWORD` melalui environment dan padamkannya sebaik proses selesai; jangan masukkannya sebagai argumen atau commit ke Git.
+Runner membaca `DEFAULT_ADMIN_USER`, `DEFAULT_ADMIN_EMAIL`, `DEFAULT_ADMIN_PASS`, `DEFAULT_ORG_NAME` dan `DEFAULT_ORG_CODE` daripada `.env`. Nilai berpetik yang mempunyai ruang disokong. Kata laluan contoh `Password1234!` mesti ditukar; deployment produksi akan menolaknya. Pemboleh ubah lama `EPEJABAT_ADMIN_*` masih disokong sebagai override tanpa argumen CLI.
 
 Urutan migrasi ialah Phase 0, Phase 1 Shared Core, Training T1–T6, kemudian Phase 2 e-Forms & Public Programs. Selepas semakan skema/RBAC awal lulus, skrip menjana `config/core.key`, menetapkan `installation_status=complete`, menghasilkan `storage/installed.lock`, membuka maintenance, dan menjalankan ujian HTTP serta matriks 403.
 
 ### C. Kemas kini pemasangan sedia ada (`upgrade`)
 
 ```bash
-php bin/cpanel-deploy.php deploy --mode=upgrade --actor=ID_SUPER_ADMIN --confirm=pkdkb.epejabat.net
+sh bin/cpanel-one-click.sh upgrade ID_SUPER_ADMIN
 ```
 
 `--actor` boleh ditinggalkan hanya apabila tepat satu Super Admin aktif wujud. Mode ini mengekalkan `core.key`, menjalankan API migrasi rasmi secara idempoten, dan menolak database yang belum mempunyai pemasangan lengkap atau `APP_INSTANCE` yang sepadan.
@@ -103,6 +97,8 @@ Setiap deployment menyimpan:
 
 Jika mana-mana migrasi, finalization atau ujian gagal, skrip mengaktifkan maintenance, memulihkan keseluruhan database daripada snapshot, dan memulihkan fail `.env`, `.htaccess`, `.user.ini`, `config/app.php`, `core.key`, `setup.php` serta `installed.lock`. Jika rollback itu sendiri gagal, `storage/upgrades/blocked.lock` dikekalkan dan aplikasi mesti diperiksa secara manual sebelum trafik dibuka.
 
+Panduan ringkas selepas pembersihan server tersedia dalam `docs/CPANEL-ONE-CLICK.md`. Jika `proc_open` disekat, runner menggunakan `exec`, `system`, `popen`, atau snapshot/restore PDO secara terus mengikut keupayaan hosting.
+
 ## 4. Deployment baharu manual melalui cPanel
 
 ### A. Sediakan domain dan fail
@@ -110,7 +106,7 @@ Jika mana-mana migrasi, finalization atau ujian gagal, skrip mengaktifkan mainte
 1. Dalam cPanel, tetapkan Document Root subdomain `pkdkb.epejabat.net` kepada direktori yang akan mengandungi `index.php`, contohnya `/home/CPANEL_USER/pkdkb.epejabat.net`. Jangan ekstrak ke satu lagi subfolder `epejabat`.
 2. Buka File Manager, muat naik ZIP daripada `deployment/packages/`, kemudian Extract terus ke Document Root.
 3. Pakej binaan sudah mengaktifkan kandungan `.htaccess.production` sebagai `.htaccess` dan `.user.ini.production` sebagai `.user.ini`. Jika memuat naik fail Git secara manual, salin kedua-dua templat produksi itu ke nama aktif dan gantikan versi XAMPP.
-4. Pastikan `storage/logs`, `storage/files`, `storage/sessions`, `storage/documents`, `storage/imports`, `storage/backups`, `storage/uploads`, `storage/upgrades`, `storage/deployments`, `storage/eforms-originals` dan `storage/eforms-packages` wujud serta boleh ditulis oleh proses PHP. Gunakan permission paling ketat yang berfungsi; lazimnya direktori `0750` dan fail rahsia `0600`.
+4. Pastikan `storage/logs`, `storage/files`, `storage/sessions`, `storage/documents`, `storage/imports`, `storage/backups`, `storage/uploads`, `storage/upgrades`, `storage/deployments`, `storage/eforms-originals` dan `storage/eforms-packages` wujud serta boleh ditulis oleh proses PHP. Runner menetapkan direktori kepada `0755`; fail rahsia kekal `0600`.
 
 ### B. Cipta dan import pangkalan data
 
